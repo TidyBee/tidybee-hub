@@ -52,6 +52,7 @@ object Build : BuildType({
             name = "Publish tidybee-hub"
             projects = "tidybee-hub.csproj"
             sdk = "7.0.111 7 8"
+            dockerImage = "mcr.microsoft.com/dotnet/sdk:7.0"
             param("dotNetCoverage.dotCover.home.path", "%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%")
         }
     }
