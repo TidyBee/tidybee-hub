@@ -39,7 +39,7 @@ object Build : BuildType({
     name = "Build"
 
     params {
-        param("DotNetCoreSDK7.0.302_Path", "/usr/lib/dotnet/sdk/7.0.302")
+        param("env.DotNetCoreSDK7.0.302_Path", "/usr/lib/dotnet/sdk/7.0.302")
     }
 
     vcs {
