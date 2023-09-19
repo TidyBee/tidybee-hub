@@ -36,7 +36,7 @@ project {
 }
 
 object Build : BuildType({
-    name = "Build"
+    name = "build-tidybeehub"
 
     vcs {
         root(DslContext.settingsRoot)
