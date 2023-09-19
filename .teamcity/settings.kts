@@ -51,7 +51,7 @@ object Build : BuildType({
         dotnetPublish {
             name = "Publish tidybee-hub"
             projects = "tidybee-hub.csproj"
-            sdk = "7"
+            sdk = "7.0.111 7 8"
             param("dotNetCoverage.dotCover.home.path", "%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%")
         }
     }
