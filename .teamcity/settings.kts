@@ -39,7 +39,6 @@ object Build : BuildType({
     name = "Build"
 
     params {
-        param("env.DOTNET_HOME", "/usr/lib/dotnet")
         param("env.DotNetCoreSDK7.0.302_Path", "/usr/lib/dotnet/sdk/7.0.111")
     }
 
