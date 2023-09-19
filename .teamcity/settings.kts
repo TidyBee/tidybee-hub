@@ -38,6 +38,10 @@ project {
 object Build : BuildType({
     name = "Build"
 
+    params {
+        param("DotNetCoreSDK7_Path", "/usr/lib/dotnet/sdk/7.0.302")
+    }
+
     vcs {
         root(DslContext.settingsRoot)
     }
