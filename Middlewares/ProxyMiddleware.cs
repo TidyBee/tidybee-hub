@@ -11,7 +11,15 @@
 
     public async Task InvokeAsync(HttpContext context)
     {
-        Console.WriteLine($"Received request: {context.Request.Method} {context.Request.Path}");
+        string remoteIpAddress = context.Connection.RemoteIpAddress?.ToString();
+        string userAgent = context.Request.Headers["User-Agent"];
+        string requestMethod = context.Request.Method;
+        string requestPath = context.Request.Path;
+
+        Console.WriteLine($"Request from IP: {remoteIpAddress}");
+        Console.WriteLine($"User-Agent: {userAgent}");
+        Console.WriteLine($"HTTP Method: {requestMethod}");
+        Console.WriteLine($"Request Path: {requestPath}");
 
         await _next(context);
     }
