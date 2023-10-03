@@ -5,6 +5,6 @@ namespace api.Models {
         public bool Misnamed { get; set; }
         public bool Misplaced { get; set; }
         public bool Unused { get; set; }
-        public FileModel? Duplicated { get; set; }
+        public List<FileModel>? Duplicated { get; set; }
     }
 }
