@@ -66,6 +66,6 @@ namespace api.Controllers
                 });
             }
             return Ok(fakeData);
-        } 
+        }
     }
 }
