@@ -5,7 +5,7 @@ using api.Models;
 
 namespace api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api")]
     [ApiController]
     public class DashboardController : ControllerBase
     {
@@ -66,6 +66,6 @@ namespace api.Controllers
                 });
             }
             return Ok(fakeData);
-        } 
+        }
     }
 }
