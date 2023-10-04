@@ -5,7 +5,7 @@ using api.Models;
 
 namespace api.Controllers
 {
-    [Route("api")]
+    [Route("api/[controller]")]
     [ApiController]
     public class DashboardController : ControllerBase
     {
