@@ -15,14 +15,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ProxyMiddleware>();
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
 app.UseCors(policy => policy
     .AllowAnyOrigin()
        .AllowAnyMethod()
           .AllowAnyHeader());
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
 
 app.MapControllers();
 
