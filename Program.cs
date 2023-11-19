@@ -1,3 +1,5 @@
+using AspNetCore.Proxy;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHttpClient();
@@ -13,11 +15,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<ProxyMiddleware>();
+// Not used right now, Middleware will be used later in the project when AAA (Authorization, Authentification and Accounting) will be started
+// app.UseMiddleware<ProxyMiddleware>();
 
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+var AgentURL = app.Configuration.GetValue<Uri>("AgentURL");
+
+
+// proxies all requests to https://jsonplaceholder.typicode.com/ as an example
+app.UseProxies(proxies => {
+    proxies.Map("/proxy/{query}", proxy => proxy.UseHttp((_, args) => $"{AgentURL}{args["query"]}"));
+});
 
 app.UseCors(policy => policy
     .AllowAnyOrigin()
