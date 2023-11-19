@@ -25,7 +25,6 @@ app.UseAuthorization();
 var AgentURL = app.Configuration.GetValue<Uri>("AgentURL");
 
 
-// proxies all requests to https://jsonplaceholder.typicode.com/ as an example
 app.UseProxies(proxies => {
     proxies.Map("/proxy/{query}", proxy => proxy.UseHttp((_, args) => $"{AgentURL}{args["query"]}"));
 });
