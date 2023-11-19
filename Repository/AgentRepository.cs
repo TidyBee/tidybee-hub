@@ -12,14 +12,28 @@ public class AgentRepository
         _dbContext = dbContext;
     }
 
-    public IEnumerable<AgentModel> GetAllAgents()
+    public IEnumerable<AgentModel> GetAllAgents(bool includeMetadata = false, bool includeConnectionInformation = false)
     {
-        return _dbContext.Agents.ToList();
+        return _dbContext.Agents.Select(a => new AgentModel
+        {
+            Uuid = a.Uuid,
+            Status = a.Status,
+            LastPing = a.LastPing,
+            Metadata = includeMetadata ? a.Metadata : null,
+            ConnectionInformation = includeConnectionInformation ? a.ConnectionInformation : null
+        }).ToList();
     }
 
-    public AgentModel? GetAgentById(Guid uuid)
+    public AgentModel? GetAgentById(Guid uuid, bool includeMetadata = false, bool includeConnectionInformation = false)
     {
-        return _dbContext.Agents.FirstOrDefault(a => a.Uuid == uuid);
+        return _dbContext.Agents.Where(a => a.Uuid == uuid).Select(a => new AgentModel
+        {
+            Uuid = a.Uuid,
+            Status = a.Status,
+            LastPing = a.LastPing,
+            Metadata = includeMetadata ? a.Metadata : null,
+            ConnectionInformation = includeConnectionInformation ? a.ConnectionInformation : null
+        }).FirstOrDefault();
     }
 
     public void AddAgent(AgentModel agent)

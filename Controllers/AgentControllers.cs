@@ -17,16 +17,16 @@ public class AgentController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAllAgents()
+    public IActionResult GetAllAgents(bool includeMetadata = false, bool includeConnectionInformation = false)
     {
-        var agents = _agentRepository.GetAllAgents();
+        var agents = _agentRepository.GetAllAgents(includeMetadata, includeConnectionInformation);
         return Ok(agents);
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetAgentById(Guid id)
+    public IActionResult GetAgentById(Guid id, bool includeMetadata = false, bool includeConnectionInformation = false)
     {
-        var agent = _agentRepository.GetAgentById(id);
+        var agent = _agentRepository.GetAgentById(id, includeMetadata, includeConnectionInformation);
         if (agent == null)
             return NotFound();
 
