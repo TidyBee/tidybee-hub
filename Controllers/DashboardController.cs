@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
 using api.Models;
 
-namespace api.Controllers
+namespace tidybee_hub.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
