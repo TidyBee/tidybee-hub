@@ -24,10 +24,14 @@ app.UseAuthorization();
 
 var AgentURL = app.Configuration.GetValue<Uri>("AgentURL");
 
-
 app.UseProxies(proxies => {
-    proxies.Map("/proxy/{query}", proxy => proxy.UseHttp((_, args) => $"{AgentURL}{args["query"]}"));
+    proxies.Map("/proxy/{query}", proxy => proxy.UseHttp((_, args) => {
+        string? query = args["query"].ToString();
+        Console.WriteLine("QUERY " + query);
+        return $"{AgentURL}{query}";
+    }));
 });
+
 
 app.UseCors(policy => policy
     .AllowAnyOrigin()
