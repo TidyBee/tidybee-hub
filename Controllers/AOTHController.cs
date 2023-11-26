@@ -23,7 +23,7 @@ public class AOTHController : ControllerBase
             Status = AgentStatusModel.Connected,
             LastPing = DateTime.Now,
             Metadata = metadata,
-            ConnectionInformation = new ConnectionModel { Port = 1, Address = "" }
+            ConnectionInformation = new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
         };
 
         _agentRepository.AddAgent(newAgent);
