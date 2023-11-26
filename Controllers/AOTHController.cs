@@ -16,13 +16,13 @@ public class AOTHController : ControllerBase
     }
 
     [HttpPost]
-    public IActionResult InitAgent()
+    public IActionResult InitAgent([FromBody] AgentMetadataModel metadata)
     {
         AgentModel newAgent = new()
         {
             Status = AgentStatusModel.Connected,
             LastPing = DateTime.Now,
-            Metadata = new AgentMetadataModel { Json = "" },
+            Metadata = metadata,
             ConnectionInformation = new ConnectionModel { Port = 1, Address = "" }
         };
 
