@@ -30,13 +30,20 @@ public class AOTHController : ControllerBase
         return Ok(newAgent.Uuid);
     }
 
-    [HttpPost("{id}")]
-    public IActionResult ConnectAgent(Guid id, [FromBody] AgentMetadataModel metadata)
+    [HttpPost("{id}/{ping?}")]
+    public IActionResult ConnectAgent(Guid id, string? ping, [FromBody] AgentMetadataModel metadata)
     {
         AgentModel? agent = _agentRepository.GetAgentById(id);
 
         if (agent == null)
             return Unauthorized("Authentication failed.");
+
+        Console.WriteLine("HEY");
+        Console.WriteLine(ping);
+        if (ping != null && ping != "ping")
+        {
+            return BadRequest(ping + " action not valid.");
+        }
 
         AgentModel updatedAgent = new()
         {
