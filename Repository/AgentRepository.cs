@@ -14,7 +14,19 @@ public class AgentRepository
 
     public IEnumerable<AgentModel> GetAllAgents(bool includeMetadata = false, bool includeConnectionInformation = false)
     {
-        return _dbContext.Agents.Select(a => new AgentModel
+        return _dbContext.Agents.Where(a => a.Status != AgentStatusModel.Deleted).Select(a => new AgentModel
+        {
+            Uuid = a.Uuid,
+            Status = a.Status,
+            LastPing = a.LastPing,
+            Metadata = includeMetadata ? a.Metadata : null,
+            ConnectionInformation = includeConnectionInformation ? a.ConnectionInformation : null
+        }).ToList();
+    }
+
+    public IEnumerable<AgentModel> GetAllDeletedAgents(bool includeMetadata = false, bool includeConnectionInformation = false)
+    {
+        return _dbContext.Agents.Where(a => a.Status == AgentStatusModel.Deleted).Select(a => new AgentModel
         {
             Uuid = a.Uuid,
             Status = a.Status,
@@ -26,7 +38,7 @@ public class AgentRepository
 
     public AgentModel? GetAgentById(Guid uuid, bool includeMetadata = false, bool includeConnectionInformation = false)
     {
-        return _dbContext.Agents.Where(a => a.Uuid == uuid).Select(a => new AgentModel
+        return _dbContext.Agents.Where(a => a.Uuid == uuid && a.Status != AgentStatusModel.Deleted).Select(a => new AgentModel
         {
             Uuid = a.Uuid,
             Status = a.Status,

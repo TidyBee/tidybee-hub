@@ -43,7 +43,7 @@ public class AOTHController : ControllerBase
             Uuid = id,
             Status = AgentStatusModel.Connected,
             LastPing = DateTime.Now,
-            Metadata = metadata,
+            Metadata = metadata ?? agent.Metadata,
             ConnectionInformation = new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
         };
 
@@ -67,7 +67,28 @@ public class AOTHController : ControllerBase
             Uuid = id,
             Status = AgentStatusModel.Disconnected,
             LastPing = DateTime.Now,
-            Metadata = metadata,
+            Metadata = metadata ?? agent.Metadata,
+            ConnectionInformation = new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
+        };
+
+        _agentRepository.UpdateAgent(updatedAgent);
+        return Ok();
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteAgent(Guid id, [FromBody] AgentMetadataModel metadata)
+    {
+        AgentModel? agent = _agentRepository.GetAgentById(id);
+
+        if (agent == null)
+            return Unauthorized("Authentication failed.");
+
+        AgentModel updatedAgent = new()
+        {
+            Uuid = id,
+            Status = AgentStatusModel.Deleted,
+            LastPing = DateTime.Now,
+            Metadata = metadata ?? agent.Metadata,
             ConnectionInformation = new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
         };
 
