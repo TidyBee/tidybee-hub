@@ -29,4 +29,25 @@ public class AOTHController : ControllerBase
         _agentRepository.AddAgent(newAgent);
         return Ok(newAgent.Uuid);
     }
+
+    [HttpPost("{id}")]
+    public IActionResult ConnectAgent(Guid id, [FromBody] AgentMetadataModel metadata)
+    {
+        AgentModel? agent = _agentRepository.GetAgentById(id);
+
+        if (agent == null)
+            return Unauthorized("Authentication failed.");
+
+        AgentModel updatedAgent = new()
+        {
+            Uuid = id,
+            Status = AgentStatusModel.Connected,
+            LastPing = DateTime.Now,
+            Metadata = metadata,
+            ConnectionInformation = new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
+        };
+
+        _agentRepository.UpdateAgent(updatedAgent);
+        return Ok();
+    }
 }

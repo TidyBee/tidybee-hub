@@ -41,4 +41,10 @@ public class AgentRepository
         _dbContext.Agents.Add(agent);
         _dbContext.SaveChanges();
     }
+
+    public void UpdateAgent(AgentModel agent)
+    {
+        _dbContext.Agents.Update(agent);
+        _dbContext.SaveChanges();
+    }
 }
