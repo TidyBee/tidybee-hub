@@ -50,4 +50,28 @@ public class AOTHController : ControllerBase
         _agentRepository.UpdateAgent(updatedAgent);
         return Ok();
     }
+
+    [HttpPut("{id}/disconnect")]
+    public IActionResult DisconnectAgent(Guid id, [FromBody] AgentMetadataModel metadata)
+    {
+        AgentModel? agent = _agentRepository.GetAgentById(id);
+
+        if (agent == null)
+            return Unauthorized("Authentication failed.");
+
+        if (agent.Status == AgentStatusModel.Disconnected)
+            return BadRequest("Agent already disconnected.");
+
+        AgentModel updatedAgent = new()
+        {
+            Uuid = id,
+            Status = AgentStatusModel.Disconnected,
+            LastPing = DateTime.Now,
+            Metadata = metadata,
+            ConnectionInformation = new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
+        };
+
+        _agentRepository.UpdateAgent(updatedAgent);
+        return Ok();
+    }
 }
