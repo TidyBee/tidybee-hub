@@ -38,12 +38,8 @@ public class AOTHController : ControllerBase
         if (agent == null)
             return Unauthorized("Authentication failed.");
 
-        Console.WriteLine("HEY");
-        Console.WriteLine(ping);
         if (ping != null && ping != "ping")
-        {
             return BadRequest(ping + " action not valid.");
-        }
 
         AgentModel updatedAgent = new()
         {
