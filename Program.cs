@@ -47,7 +47,7 @@ if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
 }
 
 // app.UseMiddleware<ProxyMiddleware>();
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
