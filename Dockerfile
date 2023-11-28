@@ -4,6 +4,8 @@ COPY Controllers ./Controllers
 COPY Middlewares ./Middlewares
 COPY Models ./Models
 COPY Properties ./Properties
+COPY Repository ./Repository
+COPY Context ./Context
 COPY Program.cs appsettings.Development.json appsettings.json tidybee-hub.csproj ./
-RUN dotnet publish -c Release -o out && dotnet dev-certs https
+RUN dotnet publish -c Release -o out && dotnet dev-certs https --trust
 CMD ["./out/tidybee-hub"]
