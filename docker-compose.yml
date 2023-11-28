@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  apigateway:
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    ports:
+      - "7000:80"
+
+  authservice:
+    build:
+      context: .
+      dockerfile: Auth/Dockerfile
+    ports:
+      - "7001:80"
+    
+  dataprocessingservice:
+    build:
+      context: .
+      dockerfile: DataProcessing/Dockerfile
+    ports:
+      - "7002:80"
