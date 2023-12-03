@@ -1,17 +1,42 @@
 document.addEventListener('DOMContentLoaded', function () {
-  fetch('/api/agent?includeConnectionInformation=true')
-    .then(response => response.json())
-    .then(data => {
-      populateTable(data)
-    })
-    .catch(error => console.error('Error fetching data:', error))
+  loadAgents()
 })
+
+function loadAgents () {
+  var includeDeleted = document.querySelector('#includeDeleted').checked
+
+  var apiUrl = '/api/agent'
+  var deletedApiUrl = '/api/agent/deleted'
+
+  if (includeDeleted) {
+    Promise.all([
+      fetch(apiUrl + '?includeConnectionInformation=true').then(response =>
+        response.json()
+      ),
+      fetch(deletedApiUrl + '?includeConnectionInformation=true').then(
+        response => response.json()
+      )
+    ])
+      .then(([agents, deletedAgents]) => {
+        populateTable([...agents, ...deletedAgents])
+      })
+      .catch(error => console.error('Error fetching data:', error))
+  } else {
+    fetch(apiUrl + '?includeConnectionInformation=true')
+      .then(response => response.json())
+      .then(data => {
+        populateTable(data)
+      })
+      .catch(error => console.error('Error fetching data:', error))
+  }
+}
 
 function populateTable (agents) {
   var tbody = document.querySelector('#agentTable tbody')
 
+  tbody.innerHTML = ''
+
   agents.forEach(agent => {
-    console.log(agent)
     var row = tbody.insertRow()
 
     addCell(row, agent.uuid)
