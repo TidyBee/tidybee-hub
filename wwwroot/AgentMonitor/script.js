@@ -155,13 +155,36 @@ function addActionButton (row, label, clickHandler) {
 }
 
 function disconnectAgent (agentId) {
-  console.log(`Disconnecting agent ${agentId}`)
+  /// TODO Replace with sending to adgent disconnection request by querying AOTH api
+  fetch(`/api/aoth/${agentId}/disconnect`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(response => {
+      if (response.ok) {
+        loadAgents()
+      }
+    })
+    .catch(error => console.error('Error during disconnect:', error))
 }
 
 function deleteAgent (agentId) {
-  console.log(`Deleting agent ${agentId}`)
+  /// TODO Replace with sending to adgent deletion request by querying AOTH api
+  fetch(`/api/aoth/${agentId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(response => {
+      loadAgents()
+    })
+    .catch(error => console.error('Error during delete:', error))
 }
 
 function restoreAgent (agentId) {
+  /// TODO Restoring agent by query AOTH api
   console.log(`Restoring agent ${agentId}`)
 }
