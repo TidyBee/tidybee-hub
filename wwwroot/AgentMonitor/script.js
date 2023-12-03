@@ -59,6 +59,24 @@ function populateTable (agents) {
       var agentId = row.cells[0].textContent
       fetchAgentMetadata(agentId)
     })
+
+    var statusCell = row.cells[1]
+    if (statusCell.textContent.trim() !== 'Deleted') {
+      addActionButton(row, 'Disconnect', function () {
+        var agentId = row.cells[0].textContent
+        disconnectAgent(agentId)
+      })
+
+      addActionButton(row, 'Delete', function () {
+        var agentId = row.cells[0].textContent
+        deleteAgent(agentId)
+      })
+    } else {
+      addActionButton(row, 'Restore', function () {
+        var agentId = row.cells[0].textContent
+        restoreAgent(agentId)
+      })
+    }
   })
 }
 
@@ -126,4 +144,24 @@ function fetchAgentMetadata (agentId) {
 function displayMetadata (metadata) {
   var metadataContainer = document.getElementById('metadataContainer')
   metadataContainer.innerHTML = JSON.stringify(metadata, null, 2)
+}
+
+function addActionButton (row, label, clickHandler) {
+  var cell = row.insertCell()
+  var button = document.createElement('button')
+  button.textContent = label
+  button.addEventListener('click', clickHandler)
+  cell.appendChild(button)
+}
+
+function disconnectAgent (agentId) {
+  console.log(`Disconnecting agent ${agentId}`)
+}
+
+function deleteAgent (agentId) {
+  console.log(`Deleting agent ${agentId}`)
+}
+
+function restoreAgent (agentId) {
+  console.log(`Restoring agent ${agentId}`)
 }
