@@ -33,3 +33,16 @@ td {
 th {
     background-color: #f2f2f2;
 }
+
+#metadataContainer {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+#metadataContainer pre {
+    font-family: 'Courier New', Courier, monospace;
+    white-space: pre-wrap;
+}

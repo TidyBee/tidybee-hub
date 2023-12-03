@@ -52,6 +52,14 @@ function populateTable (agents) {
     addCell(row, agent.connectionInformation.address)
     addCell(row, agent.connectionInformation.port)
   })
+
+  var rows = document.querySelectorAll('#agentTable tbody tr')
+  rows.forEach(row => {
+    row.addEventListener('click', function () {
+      var agentId = row.cells[0].textContent
+      fetchAgentMetadata(agentId)
+    })
+  })
 }
 
 function addCell (row, data) {
@@ -100,4 +108,22 @@ function sortTable (columnIndex) {
       }
     }
   }
+}
+
+function fetchAgentMetadata (agentId) {
+  fetch(`/api/agent/${agentId}?includeMetadata=true`)
+    .then(response => response.json())
+    .then(agent => {
+      displayMetadata(agent.metadata.json)
+    })
+    .catch(error =>
+      displayMetadata(
+        'Metadata not available. This agent is currently deleted. You can restore it to retrieve the data.'
+      )
+    )
+}
+
+function displayMetadata (metadata) {
+  var metadataContainer = document.getElementById('metadataContainer')
+  metadataContainer.innerHTML = JSON.stringify(metadata, null, 2)
 }
