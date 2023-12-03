@@ -2,6 +2,13 @@ document.addEventListener('DOMContentLoaded', function () {
   loadAgents()
 })
 
+var headers = document.querySelectorAll('#agentTable th')
+headers.forEach(header => {
+  header.addEventListener('click', function () {
+    sortTable(this.cellIndex)
+  })
+})
+
 function loadAgents () {
   var includeDeleted = document.querySelector('#includeDeleted').checked
 
@@ -64,5 +71,33 @@ function getStatusText (status) {
       return 'Connected'
     default:
       return 'Unknown'
+  }
+}
+
+function sortTable (columnIndex) {
+  var table, rows, switching, i, x, y, shouldSwitch
+  table = document.getElementById('agentTable')
+  switching = true
+
+  while (switching) {
+    switching = false
+    rows = table.rows
+
+    for (i = 1; i < rows.length - 1; i++) {
+      shouldSwitch = false
+      x = rows[i].getElementsByTagName('td')[columnIndex]
+      y = rows[i + 1].getElementsByTagName('td')[columnIndex]
+
+      if (columnIndex === 2) {
+        shouldSwitch = new Date(x.textContent) < new Date(y.textContent)
+      } else {
+        shouldSwitch = x.textContent.toLowerCase() > y.textContent.toLowerCase()
+      }
+
+      if (shouldSwitch) {
+        rows[i].parentNode.insertBefore(rows[i + 1], rows[i])
+        switching = true
+      }
+    }
   }
 }
