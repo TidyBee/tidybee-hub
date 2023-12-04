@@ -38,6 +38,8 @@ if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
         var dbContext = services.GetRequiredService<DatabaseContext>();
         dbContext.Database.EnsureCreated();
         dbContext.Database.Migrate();
+        var agentRepository = services.GetRequiredService<AgentRepository>();
+        agentRepository.DeleteInactiveAgent(app.Configuration.GetValue<int>("InactiveAgentThresholds:Deleted"), app.Configuration.GetValue<int>("InactiveAgentThresholds:Disconnected"));
     }
     catch (Exception ex)
     {
@@ -47,14 +49,15 @@ if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
 }
 
 // app.UseMiddleware<ProxyMiddleware>();
-// app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 var AgentURL = app.Configuration.GetValue<Uri>("AgentURL");
 
-app.UseProxies(proxies => {
-    proxies.Map("/proxy/{query}", proxy => proxy.UseHttp(async (context, args) => {
+app.UseProxies(proxies =>
+{
+    proxies.Map("/proxy/{query}", proxy => proxy.UseHttp((context, args) =>
+    {
         var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
         logger.LogInformation($"Method: {context.Request.Method}, URL: {context.Request.GetDisplayUrl()}");
