@@ -26,8 +26,6 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Add the request logging middleware
-app.UseRequestLogging();
 
 // app.UseHttpsRedirection();
 app.UseAuthorization();
