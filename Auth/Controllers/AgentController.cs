@@ -38,4 +38,10 @@ public class AgentController : ControllerBase
         _agentRepository.AddAgent(agent);
         return CreatedAtAction(nameof(GetAgentById), new { id = agent.Uuid }, agent);
     }
+
+    [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return Ok("test route hit");
+        }
 }

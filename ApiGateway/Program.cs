@@ -1,5 +1,4 @@
 using AspNetCore.Proxy;
-using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,10 +6,19 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
-// Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHttpClient("AuthServiceClient", client =>
+{
+    client.BaseAddress = new Uri("http://authservice");
+});
+
+builder.Services.AddHttpClient("DataProcessingServiceClient", client =>
+{
+    client.BaseAddress = new Uri("http://dataprocessingservice");
+});
 
 var app = builder.Build();
 
@@ -18,9 +26,11 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// Add the request logging middleware
+app.UseRequestLogging();
+
 // app.UseHttpsRedirection();
 app.UseAuthorization();
-
 
 var AgentURL = app.Configuration.GetValue<Uri>("AgentURL");
 
