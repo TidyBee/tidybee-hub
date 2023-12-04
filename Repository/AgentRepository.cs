@@ -68,7 +68,6 @@ public class AgentRepository
 
     public void DeleteInactiveAgent(int deletedTime, int disconnectedTime)
     {
-        Console.WriteLine(disconnectedTime);
         List<AgentModel> deletedAgentsList = GetAllAgentsByStatus(AgentStatusModel.Deleted)
             .Where(agent => agent.LastPing.AddDays(deletedTime) < DateTime.Now)
             .ToList();
