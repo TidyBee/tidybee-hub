@@ -87,7 +87,7 @@ app.UseCors(policy => policy
        .AllowAnyMethod()
           .AllowAnyHeader());
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
