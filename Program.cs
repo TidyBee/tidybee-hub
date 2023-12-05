@@ -56,7 +56,7 @@ var AgentURL = app.Configuration.GetValue<Uri>("AgentURL");
 
 app.UseProxies(proxies =>
 {
-    proxies.Map("/proxy/{query}", proxy => proxy.UseHttp((context, args) =>
+    proxies.Map("/proxy/{query}", proxy => proxy.UseHttp(async (context, args) =>
     {
         var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
@@ -89,8 +89,6 @@ app.UseCors(policy => policy
     .AllowAnyOrigin()
        .AllowAnyMethod()
           .AllowAnyHeader());
-
-//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
