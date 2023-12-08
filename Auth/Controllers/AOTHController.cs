@@ -2,10 +2,10 @@ using auth.Models;
 using Microsoft.AspNetCore.Mvc;
 using auth.Repository;
 
-namespace tidybee_hub.Controllers;
+namespace auth.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class AOTHController : ControllerBase
 {
     private readonly AgentRepository _agentRepository;
