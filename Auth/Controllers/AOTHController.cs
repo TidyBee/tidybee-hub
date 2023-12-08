@@ -1,6 +1,6 @@
-using api.Models;
+using auth.Models;
 using Microsoft.AspNetCore.Mvc;
-using tidybee_hub.Repository;
+using auth.Repository;
 
 namespace tidybee_hub.Controllers;
 
