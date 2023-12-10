@@ -13,6 +13,7 @@ builder.Logging.AddDebug();
 
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DatabaseContext>(options =>
@@ -50,6 +51,8 @@ if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
 
 // app.UseMiddleware<ProxyMiddleware>();
 
+app.UseStaticFiles();
+
 app.UseAuthorization();
 
 var AgentURL = app.Configuration.GetValue<Uri>("AgentURL");
@@ -83,7 +86,6 @@ app.UseProxies(proxies =>
         return $"{AgentURL}{query}";
     }));
 });
-
 
 app.UseCors(policy => policy
     .AllowAnyOrigin()

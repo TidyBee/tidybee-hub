@@ -31,7 +31,7 @@ public class AOTHController : ControllerBase
     }
 
     [HttpPost("{id}/{ping?}")]
-    public IActionResult ConnectAgent(Guid id, string? ping, [FromBody] AgentMetadataModel metadata)
+    public IActionResult ConnectAgent(Guid id, string? ping, [FromBody] AgentMetadataModel? metadata)
     {
         AgentModel? agent = _agentRepository.GetAgentById(id);
 
@@ -55,7 +55,7 @@ public class AOTHController : ControllerBase
     }
 
     [HttpPut("{id}/disconnect")]
-    public IActionResult DisconnectAgent(Guid id, [FromBody] AgentMetadataModel metadata)
+    public IActionResult DisconnectAgent(Guid id, [FromBody] AgentMetadataModel? metadata)
     {
         AgentModel? agent = _agentRepository.GetAgentById(id);
 
@@ -79,7 +79,7 @@ public class AOTHController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteAgent(Guid id, [FromBody] AgentMetadataModel metadata)
+    public IActionResult DeleteAgent(Guid id, [FromBody] AgentMetadataModel? metadata)
     {
         AgentModel? agent = _agentRepository.GetAgentById(id);
 
