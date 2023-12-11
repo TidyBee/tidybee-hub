@@ -1,0 +1,26 @@
+{
+  "name": "tidybee-hub codespace",
+  "image": "mcr.microsoft.com/dotnet/sdk:7.0",
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "7.0",
+      "dotnetRuntimeVersions": "7.0",
+      "aspNetCoreRuntimeVersions": "7.0"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "GitHub.vscode-github-actions",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "ms-dotnettools.csdevkit",
+        "ms-dotnetools.csharp"
+      ]
+    }
+  },
+  "forwardPorts": [
+    5002
+  ],
+  "postCreateCOmmand": "dotnet restore"
+}
