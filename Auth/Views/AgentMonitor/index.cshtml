@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/AgentMonitor/style.css">
+    <title>Agent Monitor</title>
+</head>
+
+<body>
+    <div id="content">
+        <h1>Agent Monitor</h1>
+
+        <label for="includeDeleted">Include Deleted Agents:</label>
+        <input type="checkbox" id="includeDeleted" />
+
+        <button onclick="loadAgents()">Refresh Agents</button>
+
+        <table id="agentTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Status</th>
+                    <th>Last Ping</th>
+                    <th>Address</th>
+                    <th>Port</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <div id="metadataContainer"></div>
+
+    </div>
+    <script src="~/AgentMonitor/script.js"></script>
+</body>
+
+</html>
