@@ -6,18 +6,18 @@ services:
       context: .
       dockerfile: ApiGateway/Dockerfile
     ports:
-      - "7000:80"
+      - "7001:80"
 
   authservice:
     build:
       context: .
       dockerfile: Auth/Dockerfile
     ports:
-      - "7001:80"
-    
+      - "7002:80"
+
   dataprocessingservice:
     build:
       context: .
       dockerfile: DataProcessing/Dockerfile
     ports:
-      - "7002:80"
+      - "7003:80"
