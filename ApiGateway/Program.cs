@@ -1,7 +1,19 @@
 using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Http.Extensions;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+    policy  => {
+        policy.WithOrigins(
+            "http://localhost:8080"
+        );
+    });
+});
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -23,6 +35,7 @@ builder.Services.AddHttpClient("DataProcessingServiceClient", client =>
 
 var app = builder.Build();
 
+app.UseCors(MyAllowSpecificOrigins);
 app.UseSwagger();
 app.UseSwaggerUI();
 
