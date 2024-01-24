@@ -34,7 +34,7 @@ namespace ApiGateway.HiveMiddleware
 
             if (requestPath.StartsWithSegments("/proxy") && _agentURL != null)
             {
-                var targetUri = new Uri(_agentURL, requestPath.Value.Substring(6));
+                var targetUri = new Uri(_agentURL, context.Request.GetDisplayUrl().Split('/')[^1]);
 
                 var requestMessage = new HttpRequestMessage();
 
