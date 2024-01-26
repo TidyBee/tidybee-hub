@@ -46,5 +46,17 @@ public class AgentController : ControllerBase
         _agentRepository.AddAgent(agent);
         return CreatedAtAction(nameof(GetAgentById), new { id = agent.Uuid }, agent);
     }
+
+    [HttpPut("{id}/connection")]
+    public IActionResult UpdateAgentConnection(Guid id, [FromBody] ConnectionModel connection)
+    {
+        var agent = _agentRepository.GetAgentById(id, true, true);
+        if (agent == null)
+            return NotFound();
+
+        agent.ConnectionInformation = connection;
+        _agentRepository.UpdateAgent(agent);
+        return Ok();
+    }
 }
 
