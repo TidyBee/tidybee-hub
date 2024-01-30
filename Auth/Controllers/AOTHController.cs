@@ -54,7 +54,7 @@ public class AOTHController : ControllerBase
         return Ok();
     }
 
-    [HttpPut("{id}/disconnect")]
+    [HttpDelete("{id}/disconnect")]
     public IActionResult DisconnectAgent(Guid id, [FromBody] AgentMetadataModel? metadata)
     {
         AgentModel? agent = _agentRepository.GetAgentById(id);

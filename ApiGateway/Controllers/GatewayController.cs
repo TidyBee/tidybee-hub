@@ -15,36 +15,41 @@ namespace ApiGateway.Controllers
         }
 
         [HttpGet("auth/{*path}")]
-        public async Task<IActionResult> AuthGet(string path)
+        public async Task<IActionResult> AuthGet(string path, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Get, path, null);
+            return await SendAuthRequest(HttpMethod.Get, path, null, queryParams);
         }
 
         [HttpPost("auth/{*path}")]
-        public async Task<IActionResult> AuthPost(string path, [FromBody] object requestBody)
+        public async Task<IActionResult> AuthPost(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Post, path, requestBody);
+            return await SendAuthRequest(HttpMethod.Post, path, requestBody, queryParams);
         }
 
         [HttpPut("auth/{*path}")]
-        public async Task<IActionResult> AuthPut(string path, [FromBody] object requestBody)
+        public async Task<IActionResult> AuthPut(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Put, path, requestBody);
+            return await SendAuthRequest(HttpMethod.Put, path, requestBody, queryParams);
         }
 
         [HttpDelete("auth/{*path}")]
-        public async Task<IActionResult> AuthDelete(string path)
+        public async Task<IActionResult> AuthDelete(string path, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Delete, path, null);
+            return await SendAuthRequest(HttpMethod.Delete, path, null, queryParams);
         }
 
-        private async Task<IActionResult> SendAuthRequest(HttpMethod httpMethod, string path, object? requestBody)
+        private async Task<IActionResult> SendAuthRequest(HttpMethod httpMethod, string path, object? requestBody, Dictionary<string, string> queryParams)
         {
             var client = _clientFactory.CreateClient("AuthServiceClient");
             var requestPath = $"/{path}";
 
-            HttpRequestMessage request;
+            if (queryParams != null && queryParams.Count > 0)
+            {
+                var queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+                requestPath += $"?{queryString}";
+            }
 
+            HttpRequestMessage request;
             if (httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Put)
             {
                 var jsonRequestBody = JsonConvert.SerializeObject(requestBody);

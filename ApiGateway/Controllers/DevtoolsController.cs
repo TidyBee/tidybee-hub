@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace auth.Controllers;
+namespace ApiGateway.Controllers;
 
 [Route("[controller]")]
-public class AgentMonitorController : Controller
+public class DevtoolsController : Controller
 {
     [HttpGet]
     public IActionResult Index()

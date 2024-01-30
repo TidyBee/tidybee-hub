@@ -20,6 +20,7 @@ builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 
 builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -74,6 +75,7 @@ app.UseMiddleware<ApiGateway.HiveMiddleware.HiveMiddleware>();
 //     }));
 // });
 
+app.UseStaticFiles();
 app.UseAuthorization();
 
 app.MapControllers();
