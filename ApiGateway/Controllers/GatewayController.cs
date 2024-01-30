@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -23,13 +24,13 @@ namespace ApiGateway.Controllers
         [HttpPost("auth/{*path}")]
         public async Task<IActionResult> AuthPost(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Post, path, requestBody, queryParams);
+            return await SendAuthRequest(HttpMethod.Post, path, requestBody.ToString(), queryParams);
         }
 
         [HttpPut("auth/{*path}")]
         public async Task<IActionResult> AuthPut(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Put, path, requestBody, queryParams);
+            return await SendAuthRequest(HttpMethod.Put, path, requestBody.ToString(), queryParams);
         }
 
         [HttpDelete("auth/{*path}")]
@@ -38,7 +39,7 @@ namespace ApiGateway.Controllers
             return await SendAuthRequest(HttpMethod.Delete, path, null, queryParams);
         }
 
-        private async Task<IActionResult> SendAuthRequest(HttpMethod httpMethod, string path, object? requestBody, Dictionary<string, string> queryParams)
+        private async Task<IActionResult> SendAuthRequest(HttpMethod httpMethod, string path, string? requestBody, Dictionary<string, string> queryParams)
         {
             var client = _clientFactory.CreateClient("AuthServiceClient");
             var requestPath = $"/{path}";
@@ -52,9 +53,10 @@ namespace ApiGateway.Controllers
             HttpRequestMessage request;
             if (httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Put)
             {
-                var jsonRequestBody = JsonConvert.SerializeObject(requestBody);
-                var content = new StringContent(jsonRequestBody, System.Text.Encoding.UTF8, System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json"));
-                request = new HttpRequestMessage(httpMethod, requestPath) { Content = content };
+                request = new HttpRequestMessage(httpMethod, requestPath)
+                {
+                    Content = new StringContent(requestBody!, Encoding.UTF8, "application/json")
+                };
             }
             else
             {
@@ -88,41 +90,48 @@ namespace ApiGateway.Controllers
         }
 
         [HttpGet("dataProcessing/{*path}")]
-        public async Task<IActionResult> DataProcessingGet(string path)
+        public async Task<IActionResult> DataProcessingGet(string path, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendDataProcessingRequest(HttpMethod.Get, path, null);
+            return await SendDataProcessingRequest(HttpMethod.Get, path, null, queryParams);
         }
 
         [HttpPost("dataProcessing/{*path}")]
-        public async Task<IActionResult> DataProcessingPost(string path, [FromBody] object requestBody)
+        public async Task<IActionResult> DataProcessingPost(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendDataProcessingRequest(HttpMethod.Post, path, requestBody);
+            return await SendDataProcessingRequest(HttpMethod.Post, path, requestBody.ToString(), queryParams);
         }
 
         [HttpPut("dataProcessing/{*path}")]
-        public async Task<IActionResult> DataProcessingPut(string path, [FromBody] object requestBody)
+        public async Task<IActionResult> DataProcessingPut(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendDataProcessingRequest(HttpMethod.Put, path, requestBody);
+            return await SendDataProcessingRequest(HttpMethod.Put, path, requestBody.ToString(), queryParams);
         }
 
         [HttpDelete("dataProcessing/{*path}")]
-        public async Task<IActionResult> DataProcessingDelete(string path)
+        public async Task<IActionResult> DataProcessingDelete(string path, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendDataProcessingRequest(HttpMethod.Delete, path, null);
+            return await SendDataProcessingRequest(HttpMethod.Delete, path, null, queryParams);
         }
 
-        private async Task<IActionResult> SendDataProcessingRequest(HttpMethod httpMethod, string path, object? requestBody)
+        private async Task<IActionResult> SendDataProcessingRequest(HttpMethod httpMethod, string path, string? requestBody, Dictionary<string, string> queryParams)
         {
             var client = _clientFactory.CreateClient("DataProcessingServiceClient");
             var requestPath = $"/{path}";
+
+            if (queryParams != null && queryParams.Count > 0)
+            {
+                var queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+                requestPath += $"?{queryString}";
+            }
 
             HttpRequestMessage request;
 
             if (httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Put)
             {
-                var jsonRequestBody = JsonConvert.SerializeObject(requestBody);
-                var content = new StringContent(jsonRequestBody, System.Text.Encoding.UTF8, System.Net.Http.Headers.MediaTypeHeaderValue.Parse("application/json"));
-                request = new HttpRequestMessage(httpMethod, requestPath) { Content = content };
+                request = new HttpRequestMessage(httpMethod, requestPath)
+                {
+                    Content = new StringContent(requestBody!, Encoding.UTF8, "application/json")
+                };
             }
             else
             {
