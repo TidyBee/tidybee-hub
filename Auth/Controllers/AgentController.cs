@@ -47,8 +47,20 @@ public class AgentController : ControllerBase
     }
 
     [HttpGet("test")]
-        public IActionResult Test()
-        {
-            return Ok("test route hit");
-        }
+    public IActionResult Test()
+    {
+        return Ok("test route hit");
+    }
+
+    [HttpPut("{id}/connection")]
+    public IActionResult UpdateAgentConnection(Guid id, [FromBody] ConnectionModel connection)
+    {
+        var agent = _agentRepository.GetAgentById(id, true, true);
+        if (agent == null)
+            return NotFound();
+
+        agent.ConnectionInformation = connection;
+        _agentRepository.UpdateAgent(agent);
+        return Ok();
+    }
 }
