@@ -16,7 +16,7 @@ namespace ApiGateway.HiveMiddleware
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true // NOT IN PRODUCTION
             };
             _httpClient = new HttpClient(handler);
-            var url = configuration.GetValue<string>("AgentURL");
+            var url = configuration.GetValue<string>("AgentURL"); /// CHANGE THAT BY QUERYING /gateway/auth/getAllAgent -> Keep only connected one and extract from them connectionInformation
             if (!string.IsNullOrEmpty(url))
             {
                 _agentURL = new Uri(url);
@@ -73,6 +73,7 @@ namespace ApiGateway.HiveMiddleware
             {
                 await _next(context);
             }
+            /// AT THE END OF THE PROXY / IN THE MEAN TIME QUERY /gateway/auth/<agentID>/ping to update his metadata
         }
 
         public static void LogHive(HttpContext context)
