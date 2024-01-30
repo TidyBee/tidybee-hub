@@ -25,12 +25,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpClient("AuthServiceClient", client =>
 {
-    client.BaseAddress = new Uri("http://authservice");
+    client.BaseAddress = new Uri("http://hub-auth");
 });
 
 builder.Services.AddHttpClient("DataProcessingServiceClient", client =>
 {
-    client.BaseAddress = new Uri("http://dataprocessingservice");
+    client.BaseAddress = new Uri("http://hub-data-processing");
 });
 
 var app = builder.Build();

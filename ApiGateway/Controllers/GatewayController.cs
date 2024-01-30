@@ -13,11 +13,28 @@ namespace ApiGateway.Controllers
             _clientFactory = clientFactory;
         }
 
-        [HttpGet("auth/Agent/test")]
-        public async Task<IActionResult> AuthAgentTest()
+        [HttpGet("auth/{*path}")]
+        public async Task<IActionResult> Auth(string path)
         {
             var client = _clientFactory.CreateClient("AuthServiceClient");
-            var response = await client.GetAsync("/Agent/test");
+            var requestPath = $"/{path}";
+            var response = await client.GetAsync(requestPath);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return Ok(responseContent);
+            }
+
+            return StatusCode((int)response.StatusCode, "Error calling Auth service");
+        }
+
+        [HttpGet("dataProcessing/{*path}")]
+        public async Task<IActionResult> DataProcessing(string path)
+        {
+            var client = _clientFactory.CreateClient("DataProcessingServiceClient");
+            var requestPath = $"/{path}";
+            var response = await client.GetAsync(requestPath);
 
             if (response.IsSuccessStatusCode)
             {
