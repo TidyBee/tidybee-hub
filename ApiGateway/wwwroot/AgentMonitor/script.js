@@ -12,8 +12,8 @@ headers.forEach(header => {
 function loadAgents () {
   var includeDeleted = document.querySelector('#includeDeleted').checked
 
-  var apiUrl = '/api/agent'
-  var deletedApiUrl = '/api/agent/deleted'
+  var apiUrl = '/gateway/auth/agent'
+  var deletedApiUrl = '/gateway/auth/agent/deleted'
 
   if (includeDeleted) {
     Promise.all([
@@ -129,7 +129,7 @@ function sortTable (columnIndex) {
 }
 
 function fetchAgentMetadata (agentId) {
-  fetch(`/api/agent/${agentId}?includeMetadata=true`)
+  fetch(`/gateway/auth/agent/${agentId}?includeMetadata=true`)
     .then(response => response.json())
     .then(agent => {
       displayMetadata(agent.metadata.json)
@@ -156,11 +156,11 @@ function addActionButton (row, label, clickHandler) {
 
 function disconnectAgent (agentId) {
   /// TODO Replace with sending to adgent disconnection request by querying AOTH api
-  fetch(`/api/aoth/${agentId}/disconnect`, {
-    method: 'PUT',
+  fetch(`/gateway/auth/aoth/${agentId}/disconnect`, {
+    method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
   })
     .then(response => {
       if (response.ok) {
@@ -172,7 +172,7 @@ function disconnectAgent (agentId) {
 
 function deleteAgent (agentId) {
   /// TODO Replace with sending to adgent deletion request by querying AOTH api
-  fetch(`/api/aoth/${agentId}`, {
+  fetch(`/gateway/auth/aoth/${agentId}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'

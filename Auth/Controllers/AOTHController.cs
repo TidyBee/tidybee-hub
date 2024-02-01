@@ -33,7 +33,7 @@ public class AOTHController : ControllerBase
     [HttpPost("{id}/{ping?}")]
     public IActionResult ConnectAgent(Guid id, string? ping, [FromBody] AgentMetadataModel? metadata)
     {
-        AgentModel? agent = _agentRepository.GetAgentById(id);
+        AgentModel? agent = _agentRepository.GetAgentById(id, false, true);
 
         if (agent == null)
             return Unauthorized("Authentication failed.");
@@ -46,18 +46,18 @@ public class AOTHController : ControllerBase
             Uuid = id,
             Status = AgentStatusModel.Connected,
             LastPing = DateTime.Now,
-            Metadata = metadata ?? agent.Metadata,
-            ConnectionInformation = new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
+            Metadata = agent.ConnectionInformation != null ? FetchMetadataFromExternalUrl(agent.ConnectionInformation) : metadata,
+            ConnectionInformation = agent.ConnectionInformation ?? new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
         };
 
         _agentRepository.UpdateAgent(updatedAgent);
         return Ok();
     }
 
-    [HttpPut("{id}/disconnect")]
+    [HttpDelete("{id}/disconnect")]
     public IActionResult DisconnectAgent(Guid id, [FromBody] AgentMetadataModel? metadata)
     {
-        AgentModel? agent = _agentRepository.GetAgentById(id);
+        AgentModel? agent = _agentRepository.GetAgentById(id, false, true);
 
         if (agent == null)
             return Unauthorized("Authentication failed.");
@@ -70,8 +70,8 @@ public class AOTHController : ControllerBase
             Uuid = id,
             Status = AgentStatusModel.Disconnected,
             LastPing = DateTime.Now,
-            Metadata = metadata ?? agent.Metadata,
-            ConnectionInformation = new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
+            Metadata = agent.ConnectionInformation != null ? FetchMetadataFromExternalUrl(agent.ConnectionInformation) : metadata,
+            ConnectionInformation = agent.ConnectionInformation ?? new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
         };
 
         _agentRepository.UpdateAgent(updatedAgent);
@@ -81,7 +81,7 @@ public class AOTHController : ControllerBase
     [HttpDelete("{id}")]
     public IActionResult DeleteAgent(Guid id, [FromBody] AgentMetadataModel? metadata)
     {
-        AgentModel? agent = _agentRepository.GetAgentById(id);
+        AgentModel? agent = _agentRepository.GetAgentById(id, false, true);
 
         if (agent == null)
             return Unauthorized("Authentication failed.");
@@ -91,11 +91,21 @@ public class AOTHController : ControllerBase
             Uuid = id,
             Status = AgentStatusModel.Deleted,
             LastPing = DateTime.Now,
-            Metadata = metadata ?? agent.Metadata,
-            ConnectionInformation = new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
+            Metadata = agent.ConnectionInformation != null ? FetchMetadataFromExternalUrl(agent.ConnectionInformation) : metadata,
+            ConnectionInformation = agent.ConnectionInformation ?? new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
         };
 
         _agentRepository.UpdateAgent(updatedAgent);
         return Ok();
+    }
+
+    private AgentMetadataModel? FetchMetadataFromExternalUrl(ConnectionModel connectionInformation)
+    {
+        using HttpClient client = new();
+        string getUrl = $"http://{connectionInformation.Address}:{connectionInformation.Port}/get_status";
+        HttpResponseMessage response = client.GetAsync(getUrl).Result;
+        string jsonContent = response.Content.ReadAsStringAsync().Result;
+        AgentMetadataModel metadata = new() { Json = jsonContent };
+        return metadata;
     }
 }
