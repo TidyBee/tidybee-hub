@@ -50,6 +50,12 @@ public class AOTHController : ControllerBase
             ConnectionInformation = agent.ConnectionInformation ?? new ConnectionModel { Port = (uint)(Request.Host.Port ?? 80), Address = Request.Host.Host }
         };
 
+        if (updatedAgent.Metadata!.Json == "")
+        {
+            updatedAgent.Status = agent.Status == AgentStatusModel.Disconnected ? AgentStatusModel.Disconnected : AgentStatusModel.TroubleShooting;
+            updatedAgent.LastPing = agent.LastPing;
+        }
+
         _agentRepository.UpdateAgent(updatedAgent);
         return Ok();
     }
