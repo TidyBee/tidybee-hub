@@ -57,7 +57,7 @@ namespace ApiGateway.Controllers
                 return Ok(responseContent);
             }
 
-            return StatusCode((int)response.StatusCode, "Error calling Auth service");
+            return StatusCode((int)response.StatusCode, "Error calling DataProcessing service");
         }
 
         [HttpGet("other")]
