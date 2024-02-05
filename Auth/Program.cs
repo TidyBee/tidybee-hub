@@ -28,6 +28,8 @@ if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
         var dbContext = services.GetRequiredService<DatabaseContext>();
         dbContext.Database.EnsureCreated();
         dbContext.Database.Migrate();
+        var agentRepo = services.GetRequiredService<AgentRepository>();
+        agentRepo.PingAllAgentToTroubleShoothing();
     }
     catch (Exception ex)
     {
