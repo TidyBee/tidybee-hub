@@ -1,6 +1,7 @@
 using ApiGateway.Models;
 using Microsoft.AspNetCore.Http.Extensions;
 using Newtonsoft.Json;
+using System.Text;
 using System.Text.Json;
 
 namespace ApiGateway
@@ -33,6 +34,7 @@ namespace ApiGateway
                 await AgentsHandling.UpdateConnectedAgentsAsync();
                 var connectedAgents = AgentsHandling.GetConnectedAgents();
                 var responses = new List<HiveResponseModel>();
+                var contentStringBuilder = new StringBuilder();
 
                 if (!connectedAgents.Any())
                 {
@@ -50,6 +52,7 @@ namespace ApiGateway
                             logger.LogInformation($"Proxying to {agentURL}");
                             var responseModel = await ProxyRequest(context, agentURL, logger);
                             responses.Add(responseModel);
+                            contentStringBuilder.AppendLine(responseModel.Content);
                             // await _httpClient.GetAsync($"http://hub-api-gateway/gateway/auth/{agent.Uuid}/ping");
                         }
                     }
@@ -58,6 +61,17 @@ namespace ApiGateway
                 {
                     Responses = responses
                 };
+                // var jsonResponse = new HiveJsonResponse
+                // {
+                //     Responses = new List<HiveResponseModel>
+                //     {
+                //         new()
+                //         {
+                //             StatusCode = 200,
+                //             Content = contentStringBuilder.ToString()
+                //         }
+                //     }
+                // };
                 // Serialize the JsonResponse object to JSON
                 var json = JsonConvert.SerializeObject(jsonResponse);
 
