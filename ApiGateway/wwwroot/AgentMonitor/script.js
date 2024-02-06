@@ -62,6 +62,10 @@ function populateTable (agents) {
 
     var statusCell = row.cells[1]
     if (statusCell.textContent.trim() !== 'Deleted') {
+      addActionButton(row, 'Ping', function () {
+        var agentId = row.cells[0].textContent
+        pingAgent(agentId)
+      })
       addActionButton(row, 'Disconnect', function () {
         var agentId = row.cells[0].textContent
         disconnectAgent(agentId)
@@ -154,13 +158,29 @@ function addActionButton (row, label, clickHandler) {
   cell.appendChild(button)
 }
 
+function pingAgent (agentId) {
+  fetch(`/gateway/auth/aoth/${agentId}/ping`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({})
+  })
+    .then(response => {
+      if (response.ok) {
+        loadAgents()
+      }
+    })
+    .catch(error => console.error('Error during ping:', error))
+}
+
 function disconnectAgent (agentId) {
   /// TODO Replace with sending to adgent disconnection request by querying AOTH api
   fetch(`/gateway/auth/aoth/${agentId}/disconnect`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
-    },
+    }
   })
     .then(response => {
       if (response.ok) {
