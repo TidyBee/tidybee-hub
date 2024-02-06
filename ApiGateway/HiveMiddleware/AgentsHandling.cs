@@ -17,7 +17,7 @@ namespace ApiGateway
 
         public async Task UpdateConnectedAgentsAsync()
         {
-            var response = await _httpClient.GetAsync("http://hub-api-gateway/gateway/auth/agent/connected?includeConnectionInformation=true");
+            var response = await _httpClient.GetAsync("http://hub-api-gateway/gateway/auth/agent/connected?includeConnectionInformation=true&includeMetadata=true");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
