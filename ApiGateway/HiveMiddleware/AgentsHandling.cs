@@ -27,7 +27,6 @@ namespace ApiGateway
                                       select agent)
                 {
                     _logger.LogInformation($"Agent {agent.Uuid} is connected");
-                    _logger.LogInformation($"Agent {agent}");
                     _agents.Add(agent);
                 }
             }

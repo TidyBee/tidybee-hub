@@ -1,5 +1,7 @@
 using ApiGateway.Models;
 using Microsoft.AspNetCore.Http.Extensions;
+using Newtonsoft.Json;
+using System.Text.Json;
 
 namespace ApiGateway
 {
@@ -7,8 +9,6 @@ namespace ApiGateway
     {
         private readonly RequestDelegate _next;
         private readonly HttpClient _httpClient;
-        private readonly Uri? _agentURL;
-        private List<AgentModel> _connectedAgents;
 
         public HiveMiddleware(RequestDelegate next, IConfiguration configuration)
         {
@@ -18,14 +18,6 @@ namespace ApiGateway
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true // NOT IN PRODUCTION
             };
             _httpClient = new HttpClient(handler);
-            var url = configuration.GetValue<string>("AgentURL"); /// CHANGE THAT BY QUERYING /gateway/auth/getAllAgent -> Keep only connected one and extract from them connectionInformation
-            _connectedAgents = new List<AgentModel>();
-            if (!string.IsNullOrEmpty(url))
-            {
-                _agentURL = new Uri(url);
-            } else {
-                _agentURL = null;
-            }
         }
 
         public async Task InvokeAsync(HttpContext context)
@@ -39,24 +31,39 @@ namespace ApiGateway
                 LogHive(context);
                 var AgentsHandling = new AgentsHandling(_httpClient, logger);
                 await AgentsHandling.UpdateConnectedAgentsAsync();
-                _connectedAgents = AgentsHandling.GetConnectedAgents();
-                if (!_connectedAgents.Any())
+                var connectedAgents = AgentsHandling.GetConnectedAgents();
+                var responses = new List<HiveResponseModel>();
+
+                if (!connectedAgents.Any())
                 {
-                    context.Response.StatusCode = 503;
-                    await context.Response.WriteAsync("No agent available");
-                    return;
+                    responses.Add(new HiveResponseModel
+                    {
+                        StatusCode = 503,
+                        Content = "No agent available"
+                    });
                 } else {
-                    foreach (var agent in _connectedAgents)
+                    foreach (var agent in connectedAgents)
                     {
                         if (agent.ConnectionInformation != null)
                         {
                             var agentURL = new Uri($"http://{agent.ConnectionInformation.Address}:{agent.ConnectionInformation.Port}");
                             logger.LogInformation($"Proxying to {agentURL}");
-                            await ProxyRequest(context, agentURL, logger);
+                            var responseModel = await ProxyRequest(context, agentURL, logger);
+                            responses.Add(responseModel);
                             // await _httpClient.GetAsync($"http://hub-api-gateway/gateway/auth/{agent.Uuid}/ping");
                         }
                     }
                 }
+                 var jsonResponse = new HiveJsonResponse
+                {
+                    Responses = responses
+                };
+                // Serialize the JsonResponse object to JSON
+                var json = JsonConvert.SerializeObject(jsonResponse);
+
+                // Set the response content type and write the JSON to the response
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync(json);
             }
             else
             {
@@ -65,7 +72,7 @@ namespace ApiGateway
             /// AT THE END OF THE PROXY / IN THE MEAN TIME QUERY /gateway/auth/<agentID>/ping to update his metadata
         }
 
-        public async Task ProxyRequest(HttpContext context, Uri agentURL, ILogger logger) {
+        public async Task<HiveResponseModel> ProxyRequest(HttpContext context, Uri agentURL, ILogger logger) {
             var requestMethod = context.Request.Method;
             var targetUri = new Uri(agentURL, context.Request.GetDisplayUrl().Split('/')[^1]);
 
@@ -87,21 +94,15 @@ namespace ApiGateway
 
             var responseMessage = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, context.RequestAborted);
 
-            context.Response.StatusCode = (int)responseMessage.StatusCode;
-            foreach (var header in responseMessage.Headers)
+            var responseModel = new HiveResponseModel
             {
-                context.Response.Headers[header.Key] = header.Value.ToArray();
-            }
+                StatusCode = (int)responseMessage.StatusCode,
+                Content = await responseMessage.Content.ReadAsStringAsync()
+            };
 
-            foreach (var header in responseMessage.Content.Headers)
-            {
-                context.Response.Headers[header.Key] = header.Value.ToArray();
-            }
+            logger.LogInformation($"Body: {responseModel.Content}");
 
-            context.Response.Headers.Remove("transfer-encoding");
-
-            logger.LogInformation($"Body: {responseMessage.Content.ReadAsStringAsync().Result}");
-            await responseMessage.Content.CopyToAsync(context.Response.Body);
+            return responseModel;
         }
 
         public static void LogHive(HttpContext context)
