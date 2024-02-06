@@ -33,10 +33,10 @@ namespace ApiGateway
             var requestPath = context.Request.Path;
             var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
 
-            // LogHive(context);
 
             if (requestPath.StartsWithSegments("/proxy"))
             {
+                LogHive(context);
                 var AgentsHandling = new AgentsHandling(_httpClient, logger);
                 await AgentsHandling.UpdateConnectedAgentsAsync();
                 _connectedAgents = AgentsHandling.GetConnectedAgents();

@@ -5,7 +5,7 @@ namespace ApiGateway
 {
     public class AgentsHandling
     {
-        private readonly List<AgentModel> _agents = new List<AgentModel>();
+        private readonly List<AgentModel> _agents = new();
         private readonly HttpClient _httpClient;
         private readonly ILogger _logger;
 
@@ -17,7 +17,7 @@ namespace ApiGateway
 
         public async Task UpdateConnectedAgentsAsync()
         {
-            var response = await _httpClient.GetAsync("http://hub-api-gateway/gateway/auth/agent?includeConnectionInformation=true");
+            var response = await _httpClient.GetAsync("http://hub-api-gateway/gateway/auth/agent/connected?includeConnectionInformation=true");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
