@@ -41,7 +41,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 // app.UseHttpsRedirection();
-app.UseMiddleware<ApiGateway.HiveMiddleware.HiveMiddleware>();
+app.UseMiddleware<ApiGateway.HiveMiddleware>();
 
 // var AgentURL = app.Configuration.GetValue<Uri>("AgentURL");
 
