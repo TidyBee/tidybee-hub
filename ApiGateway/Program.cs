@@ -34,6 +34,11 @@ builder.Services.AddHttpClient("DataProcessingServiceClient", client =>
     client.BaseAddress = new Uri("http://hub-data-processing");
 });
 
+builder.Services.AddHttpClient("UserAuthServiceClient", client =>
+{
+    client.BaseAddress = new Uri("http://hub-user-auth");
+});
+
 var app = builder.Build();
 
 app.UseCors(MyAllowSpecificOrigins);

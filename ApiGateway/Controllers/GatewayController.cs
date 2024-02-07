@@ -149,6 +149,66 @@ namespace ApiGateway.Controllers
             return StatusCode((int)response.StatusCode, "Error calling Data Processing service");
         }
 
+        [HttpGet("userAuth/test")]
+        public async Task<IActionResult> UserAuthGet(string path, [FromQuery] Dictionary<string, string> queryParams)
+        {
+            return await SendUserAuthRequest(HttpMethod.Get, path, null, queryParams);
+        }
+
+        [HttpPost("userAuth/{*path}")]
+        public async Task<IActionResult> UserAuthPost(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
+        {
+            return await SendUserAuthRequest(HttpMethod.Post, path, requestBody.ToString(), queryParams);
+        }
+
+        [HttpPut("userAuth/{*path}")]
+        public async Task<IActionResult> UserAuthPut(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
+        {
+            return await SendUserAuthRequest(HttpMethod.Put, path, requestBody.ToString(), queryParams);
+        }
+
+        [HttpDelete("userAuth/{*path}")]
+        public async Task<IActionResult> UserAuthDelete(string path, [FromQuery] Dictionary<string, string> queryParams)
+        {
+            return await SendUserAuthRequest(HttpMethod.Delete, path, null, queryParams);
+        }
+
+        private async Task<IActionResult> SendUserAuthRequest(HttpMethod httpMethod, string path, string? requestBody, Dictionary<string, string> queryParams)
+        {
+            var client = _clientFactory.CreateClient("UserAuthServiceClient");
+            var requestPath = $"/{path}";
+
+            if (queryParams != null && queryParams.Count > 0)
+            {
+                var queryString = string.Join("&", queryParams.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+                requestPath += $"?{queryString}";
+            }
+
+            HttpRequestMessage request;
+
+            if (httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Put)
+            {
+                request = new HttpRequestMessage(httpMethod, requestPath)
+                {
+                    Content = new StringContent(requestBody!, Encoding.UTF8, "application/json")
+                };
+            }
+            else
+            {
+                request = new HttpRequestMessage(httpMethod, requestPath);
+            }
+
+            var response = await client.SendAsync(request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return Ok(responseContent);
+            }
+
+            return StatusCode((int)response.StatusCode, "Error calling User Auth service");
+        }
+
         [HttpGet("other")]
         public IActionResult Other()
         {
