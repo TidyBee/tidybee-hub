@@ -50,10 +50,10 @@ namespace ApiGateway
                         {
                             var agentURL = new Uri($"http://{agent.ConnectionInformation.Address}:{agent.ConnectionInformation.Port}");
                             logger.LogInformation($"Proxying to {agentURL}");
-                            var responseModel = await ProxyRequest(context, agentURL, logger);
+                            var responseModel = await ProxyRequestAsync(context, agentURL, logger);
+                            logger.LogInformation($"Response: {responseModel.StatusCode}");
                             responses.Add(responseModel);
                             contentStringBuilder.AppendLine(responseModel.Content);
-                            // await _httpClient.GetAsync($"http://hub-api-gateway/gateway/auth/{agent.Uuid}/ping");
                         }
                     }
                 }
@@ -61,21 +61,8 @@ namespace ApiGateway
                 {
                     Responses = responses
                 };
-                // var jsonResponse = new HiveJsonResponse
-                // {
-                //     Responses = new List<HiveResponseModel>
-                //     {
-                //         new()
-                //         {
-                //             StatusCode = 200,
-                //             Content = contentStringBuilder.ToString()
-                //         }
-                //     }
-                // };
-                // Serialize the JsonResponse object to JSON
                 var json = JsonConvert.SerializeObject(jsonResponse);
 
-                // Set the response content type and write the JSON to the response
                 context.Response.ContentType = "application/json";
                 await context.Response.WriteAsync(json);
             }
@@ -83,40 +70,50 @@ namespace ApiGateway
             {
                 await _next(context);
             }
-            /// AT THE END OF THE PROXY / IN THE MEAN TIME QUERY /gateway/auth/<agentID>/ping to update his metadata
         }
 
-        public async Task<HiveResponseModel> ProxyRequest(HttpContext context, Uri agentURL, ILogger logger) {
+        public async Task<HiveResponseModel> ProxyRequestAsync(HttpContext context, Uri agentURL, ILogger logger) {
             var requestMethod = context.Request.Method;
             var targetUri = new Uri(agentURL, context.Request.GetDisplayUrl().Split('/')[^1]);
 
             var requestMessage = new HttpRequestMessage();
 
-            if (!HttpMethods.IsGet(requestMethod) && !HttpMethods.IsHead(requestMethod))
+            try
             {
-                var streamContent = new StreamContent(context.Request.Body);
-                requestMessage.Content = streamContent;
+                if (!HttpMethods.IsGet(requestMethod) && !HttpMethods.IsHead(requestMethod))
+                {
+                    var streamContent = new StreamContent(context.Request.Body);
+                    requestMessage.Content = streamContent;
+                }
+
+                foreach (var header in context.Request.Headers)
+                {
+                    requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
+                }
+
+                requestMessage.RequestUri = targetUri;
+                requestMessage.Method = new HttpMethod(requestMethod);
+
+                var responseMessage = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, context.RequestAborted);
+
+                var responseModel = new HiveResponseModel
+                {
+                    StatusCode = (int)responseMessage.StatusCode,
+                    Content = await responseMessage.Content.ReadAsStringAsync()
+                };
+
+                logger.LogInformation($"Body: {responseModel.Content}");
+                return responseModel;
+
+            } catch (Exception e) {
+                logger.LogError(e, $"Error proxying request to agent: {agentURL}");
+                var responseModel = new HiveResponseModel
+                {
+                    StatusCode = 500,
+                    Content = $"Error proxying request to agent: {agentURL}"
+                };
+                return responseModel;
             }
-
-            foreach (var header in context.Request.Headers)
-            {
-                requestMessage.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
-            }
-
-            requestMessage.RequestUri = targetUri;
-            requestMessage.Method = new HttpMethod(requestMethod);
-
-            var responseMessage = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, context.RequestAborted);
-
-            var responseModel = new HiveResponseModel
-            {
-                StatusCode = (int)responseMessage.StatusCode,
-                Content = await responseMessage.Content.ReadAsStringAsync()
-            };
-
-            logger.LogInformation($"Body: {responseModel.Content}");
-
-            return responseModel;
         }
 
         public static void LogHive(HttpContext context)

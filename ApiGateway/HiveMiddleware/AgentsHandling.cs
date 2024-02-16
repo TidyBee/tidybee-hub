@@ -17,17 +17,26 @@ namespace ApiGateway
 
         public async Task UpdateConnectedAgentsAsync()
         {
-            var response = await _httpClient.GetAsync("http://hub-api-gateway/gateway/auth/agent/connected?includeConnectionInformation=true&includeMetadata=true");
+            var response = await _httpClient.GetAsync("http://hub-api-gateway/gateway/auth/agent/connected?includeMetadata=true&includeConnectionInformation=true");
             if (response.IsSuccessStatusCode)
             {
                 var content = await response.Content.ReadAsStringAsync();
                 var agentModel = JsonSerializer.Deserialize<List<AgentModel>>(content);
-                foreach (var agent in from agent in agentModel
-                                      where agent.Status == AgentStatusModel.Connected
-                                      select agent)
+                if (agentModel != null)
                 {
-                    _logger.LogInformation($"Agent {agent.Uuid} is connected");
-                    _agents.Add(agent);
+                    foreach (var agent in agentModel)
+                    {
+                        await _httpClient.GetAsync($"http://hub-api-gateway/gateway/auth/agent/{agent.Uuid}/ping");
+                        var updatedAgent = JsonSerializer.Deserialize<AgentModel>(await _httpClient.GetStringAsync($"http://hub-api-gateway/gateway/auth/agent/{agent.Uuid}"));
+                        if (updatedAgent != null && updatedAgent.Status == AgentStatusModel.Connected)
+                        {
+                            _logger.LogInformation($"Agent {agent.Uuid} is connected");
+                            _agents.Add(agent);
+                        }
+
+                    }
+                } else {
+                    _logger.LogInformation("No connected agents");
                 }
             }
         }
