@@ -27,14 +27,8 @@ namespace ApiGateway
                 {
                     foreach (var agent in agentModel)
                     {
-                        await _httpClient.GetAsync($"http://hub-api-gateway/gateway/auth/agent/{agent.Uuid}/ping");
-                        var updatedAgent = JsonSerializer.Deserialize<AgentModel>(await _httpClient.GetStringAsync($"http://hub-api-gateway/gateway/auth/agent/{agent.Uuid}"));
-                        if (updatedAgent != null && updatedAgent.Status == AgentStatusModel.Connected)
-                        {
-                            _logger.LogInformation($"Agent {agent.Uuid} is connected");
-                            _agents.Add(agent);
-                        }
-
+                        _logger.LogInformation($"Agent {agent.Uuid} is connected");
+                        _agents.Add(agent);
                     }
                 } else {
                     _logger.LogInformation("No connected agents");

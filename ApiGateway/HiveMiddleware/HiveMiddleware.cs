@@ -54,6 +54,7 @@ namespace ApiGateway
                             logger.LogInformation($"Response: {responseModel.StatusCode}");
                             responses.Add(responseModel);
                             contentStringBuilder.AppendLine(responseModel.Content);
+                            await _httpClient.GetAsync($"http://hub-api-gateway/gateway/auth/aoth/{agent.Uuid}/ping");
                         }
                     }
                 }
