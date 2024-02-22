@@ -10,10 +10,16 @@ namespace ApiGateway
     {
         private readonly RequestDelegate _next;
         private readonly HttpClient _httpClient;
+        private readonly string? _gatewayUrl;
 
         public HiveMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
+            _gatewayUrl = configuration.GetValue<string>("GatewayServiceUrl");
+            if (_gatewayUrl == null)
+            {
+                throw new ArgumentNullException("GatewayServiceUrl is not set in configuration.");
+            }
             var handler = new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true // NOT IN PRODUCTION
@@ -25,12 +31,12 @@ namespace ApiGateway
         {
             var requestPath = context.Request.Path;
             var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-
+            var configuration = context.RequestServices.GetRequiredService<IConfiguration>();
 
             if (requestPath.StartsWithSegments("/proxy"))
             {
                 LogHive(context);
-                var AgentsHandling = new AgentsHandling(_httpClient, logger);
+                var AgentsHandling = new AgentsHandling(_httpClient, logger, configuration);
                 await AgentsHandling.UpdateConnectedAgentsAsync();
                 var connectedAgents = AgentsHandling.GetConnectedAgents();
                 var responses = new List<HiveResponseModel>();
@@ -54,11 +60,11 @@ namespace ApiGateway
                             logger.LogInformation($"Response: {responseModel.StatusCode}");
                             responses.Add(responseModel);
                             contentStringBuilder.AppendLine(responseModel.Content);
-                            await _httpClient.GetAsync($"http://hub-api-gateway/gateway/auth/aoth/{agent.Uuid}/ping");
+                            await _httpClient.GetAsync($"{_gatewayUrl}/gateway/auth/aoth/{agent.Uuid}/ping");
                         }
                     }
                 }
-                 var jsonResponse = new HiveJsonResponse
+                var jsonResponse = new HiveJsonResponse
                 {
                     Responses = responses
                 };

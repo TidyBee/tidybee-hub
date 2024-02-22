@@ -15,11 +15,13 @@ namespace ApiGateway.Controllers
             _clientFactory = clientFactory;
         }
 
+
         [HttpGet("auth/{*path}")]
         public async Task<IActionResult> AuthGet(string path, [FromQuery] Dictionary<string, string> queryParams)
         {
             return await SendAuthRequest(HttpMethod.Get, path, null, queryParams);
         }
+
 
         [HttpPost("auth/{*path}")]
         public async Task<IActionResult> AuthPost(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
