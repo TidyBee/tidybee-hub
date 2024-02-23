@@ -82,7 +82,6 @@ namespace ApiGateway
         public async Task<HiveResponseModel> ProxyRequestAsync(HttpContext context, Uri agentURL, ILogger logger) {
             var requestMethod = context.Request.Method;
             var targetUri = new Uri(agentURL, context.Request.GetDisplayUrl().Split('/')[^1]);
-
             var requestMessage = new HttpRequestMessage();
 
             try

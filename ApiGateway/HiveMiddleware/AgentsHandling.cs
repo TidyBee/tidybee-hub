@@ -15,10 +15,9 @@ namespace ApiGateway
             _httpClient = httpClient;
             _logger = logger;
             _gatewayUrl = configuration.GetValue<string>("GatewayServiceUrl");
-            logger.LogInformation($"Gateway URL: {_gatewayUrl}");
             if (_gatewayUrl == null)
             {
-                throw new ArgumentNullException("AothServiceUrl is not set in configuration.");
+                throw new ArgumentNullException("GatewayServiceUrl is not set in configuration.");
             }
         }
 
