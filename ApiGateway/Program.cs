@@ -28,14 +28,18 @@ var configuration = builder.Configuration;
 
 try
 {
+    var aothServiceUrl = configuration.GetValue<string>("AothServiceUrl");
+    var dataProcessingServiceUrl = configuration.GetValue<string>("DataProcessingServiceUrl");
+    if (aothServiceUrl == null || dataProcessingServiceUrl == null)
+        throw new Exception();
     builder.Services.AddHttpClient("AuthServiceClient", client =>
     {
-        client.BaseAddress = new Uri(configuration.GetValue<string>("AothServiceUrl"));
+        client.BaseAddress = new Uri(aothServiceUrl);
     });
 
     builder.Services.AddHttpClient("DataProcessingServiceClient", client =>
     {
-        client.BaseAddress = new Uri(uriString: configuration.GetValue<string>("DataProcessingServiceUrl"));
+        client.BaseAddress = new Uri(dataProcessingServiceUrl);
     });
 }
 catch (Exception)
