@@ -57,7 +57,7 @@ public class AOTHController : ControllerBase
         }
 
         _agentRepository.UpdateAgent(updatedAgent);
-        return Ok();
+        return Ok(updatedAgent.Status);
     }
 
     [HttpDelete("{id}/disconnect")]

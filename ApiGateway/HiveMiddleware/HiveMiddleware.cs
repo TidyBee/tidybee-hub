@@ -54,13 +54,15 @@ namespace ApiGateway
                     {
                         if (agent.ConnectionInformation != null)
                         {
+                            var agentStatus = await _httpClient.PostAsync($"{_gatewayUrl}/gateway/auth/aoth/{agent.Uuid}/ping", new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
+                            if ((await agentStatus.Content.ReadAsStringAsync()) != "1")
+                                continue;
                             var agentURL = new Uri($"http://{agent.ConnectionInformation.Address}:{agent.ConnectionInformation.Port}");
                             logger.LogInformation($"Proxying to {agentURL}");
                             var responseModel = await ProxyRequestAsync(context, agentURL, logger);
                             logger.LogInformation($"Response: {responseModel.StatusCode}");
                             responses.Add(responseModel);
                             contentStringBuilder.AppendLine(responseModel.Content);
-                            await _httpClient.GetAsync($"{_gatewayUrl}/gateway/auth/aoth/{agent.Uuid}/ping");
                         }
                     }
                 }
