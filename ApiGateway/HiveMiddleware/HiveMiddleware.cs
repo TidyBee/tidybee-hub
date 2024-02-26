@@ -1,43 +1,93 @@
+using ApiGateway.Models;
 using Microsoft.AspNetCore.Http.Extensions;
+using Newtonsoft.Json;
+using System.Text;
+using System.Text.Json;
 
-namespace ApiGateway.HiveMiddleware
+namespace ApiGateway
 {
     public class HiveMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly HttpClient _httpClient;
-        private readonly Uri? _agentURL;
+        private readonly string? _gatewayUrl;
 
         public HiveMiddleware(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
+            _gatewayUrl = configuration.GetValue<string>("GatewayServiceUrl");
+            if (_gatewayUrl == null)
+            {
+                throw new ArgumentNullException("GatewayServiceUrl is not set in configuration.");
+            }
             var handler = new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true // NOT IN PRODUCTION
             };
             _httpClient = new HttpClient(handler);
-            var url = configuration.GetValue<string>("AgentURL"); /// CHANGE THAT BY QUERYING /gateway/auth/getAllAgent -> Keep only connected one and extract from them connectionInformation
-            if (!string.IsNullOrEmpty(url))
-            {
-                _agentURL = new Uri(url);
-            } else {
-                _agentURL = null;
-            }
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var requestMethod = context.Request.Method;
             var requestPath = context.Request.Path;
+            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+            var configuration = context.RequestServices.GetRequiredService<IConfiguration>();
 
-            LogHive(context);
-
-            if (requestPath.StartsWithSegments("/proxy") && _agentURL != null)
+            if (requestPath.StartsWithSegments("/proxy"))
             {
-                var targetUri = new Uri(_agentURL, context.Request.GetDisplayUrl().Split('/')[^1]);
+                LogHive(context);
+                var AgentsHandling = new AgentsHandling(_httpClient, logger, configuration);
+                await AgentsHandling.UpdateConnectedAgentsAsync();
+                var connectedAgents = AgentsHandling.GetConnectedAgents();
+                var responses = new List<HiveResponseModel>();
+                var contentStringBuilder = new StringBuilder();
 
-                var requestMessage = new HttpRequestMessage();
+                if (!connectedAgents.Any())
+                {
+                    responses.Add(new HiveResponseModel
+                    {
+                        StatusCode = 503,
+                        Content = "No agent available"
+                    });
+                } else {
+                    foreach (var agent in connectedAgents)
+                    {
+                        if (agent.ConnectionInformation != null)
+                        {
+                            var agentStatus = await _httpClient.PostAsync($"{_gatewayUrl}/gateway/auth/aoth/{agent.Uuid}/ping", new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
+                            if ((await agentStatus.Content.ReadAsStringAsync()) != "1")
+                                continue;
+                            var agentURL = new Uri($"http://{agent.ConnectionInformation.Address}:{agent.ConnectionInformation.Port}");
+                            logger.LogInformation($"Proxying to {agentURL}");
+                            var responseModel = await ProxyRequestAsync(context, agentURL, logger);
+                            logger.LogInformation($"Response: {responseModel.StatusCode}");
+                            responses.Add(responseModel);
+                            contentStringBuilder.AppendLine(responseModel.Content);
+                        }
+                    }
+                }
+                var jsonResponse = new HiveJsonResponse
+                {
+                    Responses = responses
+                };
+                var json = JsonConvert.SerializeObject(jsonResponse);
 
+                context.Response.ContentType = "application/json";
+                await context.Response.WriteAsync(json);
+            }
+            else
+            {
+                await _next(context);
+            }
+        }
+
+        public async Task<HiveResponseModel> ProxyRequestAsync(HttpContext context, Uri agentURL, ILogger logger) {
+            var requestMethod = context.Request.Method;
+            var targetUri = new Uri(agentURL, context.Request.GetDisplayUrl().Split('/')[^1]);
+            var requestMessage = new HttpRequestMessage();
+
+            try
+            {
                 if (!HttpMethods.IsGet(requestMethod) && !HttpMethods.IsHead(requestMethod))
                 {
                     var streamContent = new StreamContent(context.Request.Body);
@@ -54,26 +104,24 @@ namespace ApiGateway.HiveMiddleware
 
                 var responseMessage = await _httpClient.SendAsync(requestMessage, HttpCompletionOption.ResponseHeadersRead, context.RequestAborted);
 
-                context.Response.StatusCode = (int)responseMessage.StatusCode;
-                foreach (var header in responseMessage.Headers)
+                var responseModel = new HiveResponseModel
                 {
-                    context.Response.Headers[header.Key] = header.Value.ToArray();
-                }
+                    StatusCode = (int)responseMessage.StatusCode,
+                    Content = await responseMessage.Content.ReadAsStringAsync()
+                };
 
-                foreach (var header in responseMessage.Content.Headers)
+                logger.LogInformation($"Body: {responseModel.Content}");
+                return responseModel;
+
+            } catch (Exception e) {
+                logger.LogError(e, $"Error proxying request to agent: {agentURL}");
+                var responseModel = new HiveResponseModel
                 {
-                    context.Response.Headers[header.Key] = header.Value.ToArray();
-                }
-
-                context.Response.Headers.Remove("transfer-encoding");
-
-                await responseMessage.Content.CopyToAsync(context.Response.Body);
+                    StatusCode = 500,
+                    Content = $"Error proxying request to agent: {agentURL}"
+                };
+                return responseModel;
             }
-            else
-            {
-                await _next(context);
-            }
-            /// AT THE END OF THE PROXY / IN THE MEAN TIME QUERY /gateway/auth/<agentID>/ping to update his metadata
         }
 
         public static void LogHive(HttpContext context)

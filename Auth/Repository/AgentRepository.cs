@@ -101,7 +101,7 @@ public class AgentRepository
                 agent.LastPing = DateTime.Now;
                 UpdateAgent(agent);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 agent.Status = AgentStatusModel.Disconnected;
                 UpdateAgent(agent);

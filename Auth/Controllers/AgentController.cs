@@ -22,6 +22,13 @@ public class AgentController : ControllerBase
         return Ok(agents);
     }
 
+    [HttpGet("connected")]
+    public IActionResult GetAllConnectedAgents(bool includeMetadata = false, bool includeConnectionInformation = false)
+    {
+        var agents = _agentRepository.GetAllAgentsByStatus(AgentStatusModel.Connected, includeMetadata, includeConnectionInformation);
+        return Ok(agents);
+    }
+
     [HttpGet("deleted")]
     public IActionResult GetAllDeletedAgents(bool includeMetadata = false, bool includeConnectionInformation = false)
     {
