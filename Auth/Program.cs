@@ -27,6 +27,7 @@ if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
 {
     try
     {
+        Console.WriteLine("Testing");
         dbContext.Database.Migrate();
     }
     catch (Exception ex)
