@@ -18,23 +18,35 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+var dbContext = services.GetRequiredService<DatabaseContext>();
+dbContext.Database.EnsureCreated();
+
 if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
 {
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-
     try
     {
-        var dbContext = services.GetRequiredService<DatabaseContext>();
-        dbContext.Database.EnsureCreated();
         dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
+
+if (app.Configuration.GetValue<bool>("EnableStatusHandler"))
+{
+    try
+    {
         var agentRepo = services.GetRequiredService<AgentRepository>();
         agentRepo.PingAllAgentToTroubleShoothing();
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database.");
+        logger.LogError(ex, "An error occurred while updating the agent status.");
     }
 }
 
