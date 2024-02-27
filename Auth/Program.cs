@@ -42,4 +42,9 @@ if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
 app.UseAuthorization();
 app.MapControllers();
 
+var statusHandler = new StatusHandlerService();
+statusHandler.Start();
+
 app.Run();
+
+statusHandler.Stop();
