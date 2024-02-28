@@ -100,7 +100,6 @@ public class AgentRepository
                 using HttpClient client = new();
                 string getUrl = $"http://{agent.ConnectionInformation!.Address}:{agent.ConnectionInformation.Port}/get_status";
                 HttpResponseMessage response = client.GetAsync(getUrl).Result;
-                Console.WriteLine(response.StatusCode);
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                     throw new Exception();
                 string jsonContent = response.Content.ReadAsStringAsync().Result;
