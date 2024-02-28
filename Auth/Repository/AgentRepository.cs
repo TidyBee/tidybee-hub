@@ -1,6 +1,6 @@
 using auth.Models;
 using auth.Context;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace auth.Repository;
 
@@ -51,45 +51,23 @@ public class AgentRepository
 
     public void AddAgent(AgentModel agent)
     {
-        var entry = _dbContext.Entry(agent);
-
-        if (entry.State == EntityState.Detached)
-        {
-            _dbContext.Agents.Add(agent);
-        }
+        _dbContext.Agents.Add(agent);
         _dbContext.SaveChanges();
+        _dbContext.ChangeTracker.Clear();
     }
 
     public void UpdateAgent(AgentModel agent)
     {
-        var existingAgent = _dbContext.Agents.Find(agent.Uuid);
-
-        if (existingAgent != null)
-        {
-            _dbContext.Entry(existingAgent).State = EntityState.Detached;
-            _dbContext.Entry(existingAgent).CurrentValues.SetValues(agent);
-            _dbContext.Entry(existingAgent).State = EntityState.Modified;
-        }
-        else
-        {
-            _dbContext.Attach(agent);
-            _dbContext.Entry(agent).State = EntityState.Modified;
-        }
-
+        _dbContext.Agents.Update(agent);
         _dbContext.SaveChanges();
+        _dbContext.ChangeTracker.Clear();
     }
 
     public void DeleteAgent(AgentModel agent)
     {
-        var existingAgent = _dbContext.Agents.Find(agent.Uuid);
-
-        if (existingAgent != null)
-        {
-            _dbContext.Entry(existingAgent).State = EntityState.Detached;
-            _dbContext.Attach(existingAgent);
-            _dbContext.Entry(existingAgent).State = EntityState.Deleted;
-            _dbContext.SaveChanges();
-        }
+        _dbContext.Agents.Remove(agent);
+        _dbContext.SaveChanges();
+        _dbContext.ChangeTracker.Clear();
     }
 
     public void DeleteInactiveAgent(int deletedTime, int disconnectedTime)
@@ -122,7 +100,7 @@ public class AgentRepository
                 string getUrl = $"http://{agent.ConnectionInformation!.Address}:{agent.ConnectionInformation.Port}/get_status";
                 HttpResponseMessage response = client.GetAsync(getUrl).Result;
                 Console.WriteLine(response.StatusCode);
-                if (!response.StatusCode.Equals(200))
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
                     throw new Exception();
                 string jsonContent = response.Content.ReadAsStringAsync().Result;
                 agent.Metadata!.Json = jsonContent;

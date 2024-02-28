@@ -4,30 +4,36 @@ using auth.Repository;
 
 public class StatusHandlerService
 {
-    private Timer? timer;
-    private AgentRepository? agentRepository;
-    private int? statusTiming;
+    private Timer? _timer;
+    private AgentRepository _agentRepository;
+    private int? _statusTiming;
+    private ILogger? _logger;
 
-    public void Start(AgentRepository agentRepository, int statusTiming)
+    public StatusHandlerService(AgentRepository agentRepository)
     {
-        Console.WriteLine("Service is starting...");
+        _agentRepository = agentRepository;
+    }
 
-        this.agentRepository = agentRepository;
-        this.statusTiming = statusTiming;
-        timer = new Timer(PrintText, null, TimeSpan.Zero, TimeSpan.FromSeconds(statusTiming));
+    public void Start(int statusTiming, ILogger logger)
+    {
+
+        _statusTiming = statusTiming;
+        _logger = logger;
+        _logger.LogInformation("StatusHandler service is starting...");
+        _timer = new Timer(PrintText, null, TimeSpan.Zero, TimeSpan.FromSeconds(statusTiming));
     }
 
     public void Stop()
     {
-        Console.WriteLine("Service is stopping...");
+        _logger?.LogInformation("StatusHandler service is stopping...");
 
-        timer?.Change(Timeout.Infinite, 0);
-        timer?.Dispose();
+        _timer?.Change(Timeout.Infinite, 0);
+        _timer?.Dispose();
     }
 
     private void PrintText(object state)
     {
-        Console.WriteLine($"Service is running... {DateTime.Now}");
-        this.agentRepository?.PingAllAgentToTroubleShoothing();
+        _logger?.LogInformation($"Pinging all agent at time : {DateTime.Now}");
+        _agentRepository.PingAllAgentToTroubleShoothing();
     }
 }
