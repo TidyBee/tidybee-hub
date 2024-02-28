@@ -1,6 +1,5 @@
 using auth.Models;
 using auth.Context;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace auth.Repository;
 
@@ -88,12 +87,14 @@ public class AgentRepository
         }
     }
 
-    public void PingAllAgentToTroubleShoothing()
+    public void PingAllAgentToTroubleShoothing(int pingFrequency)
     {
         List<AgentModel> agentsList = GetAllAgents(true, true).ToList();
 
         foreach (var agent in agentsList)
         {
+            if (agent.Status == AgentStatusModel.Disconnected)
+                continue;
             try
             {
                 using HttpClient client = new();
@@ -110,7 +111,7 @@ public class AgentRepository
             }
             catch (Exception)
             {
-                agent.Status = AgentStatusModel.Disconnected;
+                agent.Status = agent.LastPing.AddSeconds(pingFrequency * 3) < DateTime.Now ? AgentStatusModel.Disconnected : AgentStatusModel.TroubleShooting;
                 UpdateAgent(agent);
             }
         }

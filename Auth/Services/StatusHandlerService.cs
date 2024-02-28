@@ -34,6 +34,6 @@ public class StatusHandlerService
     private void PrintText(object state)
     {
         _logger?.LogInformation($"Pinging all agent at time : {DateTime.Now}");
-        _agentRepository.PingAllAgentToTroubleShoothing();
+        _agentRepository.PingAllAgentToTroubleShoothing(_statusTiming != null ? _statusTiming.Value : 60);
     }
 }
