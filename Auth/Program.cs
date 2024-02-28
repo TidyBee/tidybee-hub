@@ -18,18 +18,16 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+
 if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
 {
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-
     try
     {
         var dbContext = services.GetRequiredService<DatabaseContext>();
         dbContext.Database.EnsureCreated();
         dbContext.Database.Migrate();
-        var agentRepo = services.GetRequiredService<AgentRepository>();
-        agentRepo.PingAllAgentToTroubleShoothing();
     }
     catch (Exception ex)
     {
@@ -42,8 +40,9 @@ if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
 app.UseAuthorization();
 app.MapControllers();
 
+var agentRepo = services.GetRequiredService<AgentRepository>();
 var statusHandler = new StatusHandlerService();
-statusHandler.Start();
+statusHandler.Start(agentRepo, 20);
 
 app.Run();
 
