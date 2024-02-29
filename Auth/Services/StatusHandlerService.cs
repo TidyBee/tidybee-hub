@@ -20,7 +20,7 @@ public class StatusHandlerService
         _statusTiming = statusTiming;
         _logger = logger;
         _logger.LogInformation("StatusHandler service is starting...");
-        _timer = new Timer(PrintText, null, TimeSpan.Zero, TimeSpan.FromSeconds(statusTiming));
+        _timer = new Timer(PingAllAgent!, null, TimeSpan.Zero, TimeSpan.FromSeconds(statusTiming));
     }
 
     public void Stop()
@@ -31,7 +31,7 @@ public class StatusHandlerService
         _timer?.Dispose();
     }
 
-    private void PrintText(object state)
+    private void PingAllAgent(object state)
     {
         _logger?.LogInformation($"Pinging all agent at time : {DateTime.Now}");
         _agentRepository.PingAllAgentToTroubleShoothing(_statusTiming != null ? _statusTiming.Value : 60);
