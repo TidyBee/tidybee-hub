@@ -19,32 +19,34 @@ namespace ApiGateway.Controllers
         [HttpGet("auth/{*path}")]
         public async Task<IActionResult> AuthGet(string path, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Get, path, null, queryParams);
+            return await SendAuthRequest(HttpMethod.Get, path, null, queryParams, Request.Host);
         }
 
 
         [HttpPost("auth/{*path}")]
         public async Task<IActionResult> AuthPost(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Post, path, requestBody.ToString(), queryParams);
+            return await SendAuthRequest(HttpMethod.Post, path, requestBody.ToString(), queryParams, Request.Host);
         }
 
         [HttpPut("auth/{*path}")]
         public async Task<IActionResult> AuthPut(string path, [FromBody] object requestBody, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Put, path, requestBody.ToString(), queryParams);
+            return await SendAuthRequest(HttpMethod.Put, path, requestBody.ToString(), queryParams, Request.Host);
         }
 
         [HttpDelete("auth/{*path}")]
         public async Task<IActionResult> AuthDelete(string path, [FromQuery] Dictionary<string, string> queryParams)
         {
-            return await SendAuthRequest(HttpMethod.Delete, path, null, queryParams);
+            return await SendAuthRequest(HttpMethod.Delete, path, null, queryParams, Request.Host);
         }
 
-        private async Task<IActionResult> SendAuthRequest(HttpMethod httpMethod, string path, string? requestBody, Dictionary<string, string> queryParams)
+        private async Task<IActionResult> SendAuthRequest(HttpMethod httpMethod, string path, string? requestBody, Dictionary<string, string> queryParams, HostString host)
         {
             var client = _clientFactory.CreateClient("AuthServiceClient");
             var requestPath = $"/{path}";
+
+            client.DefaultRequestHeaders.Add("Host", $"{host.Host}:{host.Port}");
 
             if (queryParams != null && queryParams.Count > 0)
             {
