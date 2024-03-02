@@ -116,7 +116,7 @@ public class AOTHController : ControllerBase
             AgentMetadataModel metadata = new() { Json = jsonContent };
             return metadata;
         }
-        catch (Exception err)
+        catch (Exception)
         {
             return new AgentMetadataModel { Json = "" };
         }
