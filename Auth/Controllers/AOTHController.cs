@@ -107,11 +107,18 @@ public class AOTHController : ControllerBase
 
     private AgentMetadataModel? FetchMetadataFromExternalUrl(ConnectionModel connectionInformation)
     {
-        using HttpClient client = new();
-        string getUrl = $"http://{connectionInformation.Address}:{connectionInformation.Port}/get_status";
-        HttpResponseMessage response = client.GetAsync(getUrl).Result;
-        string jsonContent = response.Content.ReadAsStringAsync().Result;
-        AgentMetadataModel metadata = new() { Json = jsonContent };
-        return metadata;
+        try
+        {
+            using HttpClient client = new();
+            string getUrl = $"http://{connectionInformation.Address}:{connectionInformation.Port}/get_status";
+            HttpResponseMessage response = client.GetAsync(getUrl).Result;
+            string jsonContent = response.Content.ReadAsStringAsync().Result;
+            AgentMetadataModel metadata = new() { Json = jsonContent };
+            return metadata;
+        }
+        catch (Exception err)
+        {
+            return new AgentMetadataModel { Json = "" };
+        }
     }
 }
