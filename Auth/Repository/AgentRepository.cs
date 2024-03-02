@@ -52,18 +52,21 @@ public class AgentRepository
     {
         _dbContext.Agents.Add(agent);
         _dbContext.SaveChanges();
+        _dbContext.ChangeTracker.Clear();
     }
 
     public void UpdateAgent(AgentModel agent)
     {
         _dbContext.Agents.Update(agent);
         _dbContext.SaveChanges();
+        _dbContext.ChangeTracker.Clear();
     }
 
     public void DeleteAgent(AgentModel agent)
     {
         _dbContext.Agents.Remove(agent);
         _dbContext.SaveChanges();
+        _dbContext.ChangeTracker.Clear();
     }
 
     public void DeleteInactiveAgent(int deletedTime, int disconnectedTime)
@@ -84,17 +87,21 @@ public class AgentRepository
         }
     }
 
-    public void PingAllAgentToTroubleShoothing()
+    public void PingAllAgentToTroubleShoothing(int pingFrequency)
     {
         List<AgentModel> agentsList = GetAllAgents(true, true).ToList();
 
         foreach (var agent in agentsList)
         {
+            if (agent.Status == AgentStatusModel.Disconnected)
+                continue;
             try
             {
                 using HttpClient client = new();
                 string getUrl = $"http://{agent.ConnectionInformation!.Address}:{agent.ConnectionInformation.Port}/get_status";
                 HttpResponseMessage response = client.GetAsync(getUrl).Result;
+                if (response.StatusCode != System.Net.HttpStatusCode.OK)
+                    throw new Exception();
                 string jsonContent = response.Content.ReadAsStringAsync().Result;
                 agent.Metadata!.Json = jsonContent;
                 agent.Status = AgentStatusModel.Connected;
@@ -103,7 +110,7 @@ public class AgentRepository
             }
             catch (Exception)
             {
-                agent.Status = AgentStatusModel.Disconnected;
+                agent.Status = agent.LastPing.AddSeconds(pingFrequency * 3) < DateTime.Now ? AgentStatusModel.Disconnected : AgentStatusModel.TroubleShooting;
                 UpdateAgent(agent);
             }
         }

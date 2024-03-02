@@ -46,7 +46,6 @@ namespace ApiGateway.Controllers
             var client = _clientFactory.CreateClient("AuthServiceClient");
             var requestPath = $"/{path}";
 
-            client.DefaultRequestHeaders.Add("Host", $"{host.Host}:{host.Port}");
 
             if (queryParams != null && queryParams.Count > 0)
             {
