@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DatabaseConnection")));
 builder.Services.AddScoped<AgentRepository>();
+builder.Services.AddScoped<StatusHandlerService>();
 
 var app = builder.Build();
 
@@ -23,6 +24,8 @@ var services = scope.ServiceProvider;
 var dbContext = services.GetRequiredService<DatabaseContext>();
 dbContext.Database.EnsureCreated();
 
+var logger = services.GetRequiredService<ILogger<Program>>();
+
 if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
 {
     try
@@ -31,22 +34,23 @@ if (app.Configuration.GetValue<bool>("EnableAutoMigration"))
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while migrating the database.");
     }
 }
 
-if (app.Configuration.GetValue<bool>("EnableStatusHandler"))
+StatusHandlerService? statusHandler = null;
+int statusHandlerFrequency = app.Configuration.GetValue<int>("StatusHandlerFrequency");
+
+if (statusHandlerFrequency != 0)
 {
     try
     {
-        var agentRepo = services.GetRequiredService<AgentRepository>();
-        agentRepo.PingAllAgentToTroubleShoothing();
+        statusHandler = services.GetRequiredService<StatusHandlerService>();
+        statusHandler.Start(statusHandlerFrequency, logger);
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while updating the agent status.");
+        logger.LogError(ex, "Unable to setup the StatusHandler service.");
     }
 }
 
@@ -55,3 +59,5 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+statusHandler?.Stop();
