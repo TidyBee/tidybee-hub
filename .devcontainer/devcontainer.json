@@ -1,6 +1,5 @@
 {
   "name": "tidybee-hub codespace",
-  "image": "mcr.microsoft.com/dotnet/sdk:7.0",
   "features": {
     "ghcr.io/devcontainers/features/dotnet:2": {
       "version": "7.0",
