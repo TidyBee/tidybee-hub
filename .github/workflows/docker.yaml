@@ -40,7 +40,7 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v5
         with:
-          images: tidybee/tidybee-${{ matrix.service_name }}
+          images: tidybee/tidybee-hub-${{ matrix.service_name }}
 
       - name: Login to ghcr.io
         uses: docker/login-action@v3
