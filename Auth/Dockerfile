@@ -12,6 +12,7 @@ FROM build AS publish
 RUN dotnet publish "Auth.csproj" -c Release -o /app/publish
 
 FROM base AS final
+LABEL org.opencontainers.image.source=https://github.com/TidyBee/tidybee-hub
 WORKDIR /app
 COPY --from=publish /app/publish .
 COPY Auth/Database /app/Database
