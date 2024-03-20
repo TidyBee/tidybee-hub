@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:7.0 AS build
 ARG TARGETARCH
 WORKDIR /src
 COPY DataProcessing/DataProcessing.csproj ./
@@ -6,7 +6,7 @@ RUN dotnet restore "./DataProcessing.csproj" -a $TARGETARCH
 COPY DataProcessing/ ./
 RUN dotnet build "DataProcessing.csproj" -c Release -o /app/build -a $TARGETARCH
 
-FROM build AS publish
+FROM build  AS publish
 RUN dotnet publish "DataProcessing.csproj" -c Release -o /app/publish -a $TARGETARCH
 
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:7.0-bookworm-slim AS final
