@@ -2,7 +2,7 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG TARGETARCH
 WORKDIR /src
 COPY ApiGateway/ApiGateway.csproj ./
-RUN dotnet restore "./ApiGateway.csproj" -a $TARGETARCH -r linux-arm64
+RUN dotnet restore "./ApiGateway.csproj" -a $TARGETARCH
 COPY ApiGateway/ ./
 RUN dotnet build "ApiGateway.csproj" -c Release -o /app/build -a $TARGETARCH
 
