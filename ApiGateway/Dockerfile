@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM AS base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 ARG TARGETARCH
 WORKDIR /app
 
