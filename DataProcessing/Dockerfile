@@ -1,11 +1,8 @@
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 ARG TARGETARCH
-WORKDIR /app
-
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY DataProcessing/DataProcessing.csproj ./
-RUN dotnet restore "./DataProcessing.csproj"
+RUN dotnet restore "./DataProcessing.csproj" -a $TARGETARCH
 COPY DataProcessing/ ./
 RUN dotnet build "DataProcessing.csproj" -c Release -o /app/build -a $TARGETARCH
 

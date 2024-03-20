@@ -1,8 +1,5 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 ARG TARGETARCH
-WORKDIR /app
-
-FROM base AS build
 WORKDIR /src
 COPY ApiGateway/ApiGateway.csproj ./
 RUN dotnet restore "./ApiGateway.csproj" -a $TARGETARCH
