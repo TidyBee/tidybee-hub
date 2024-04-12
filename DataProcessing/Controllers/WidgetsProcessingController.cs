@@ -102,31 +102,33 @@ namespace WidgetController.Controllers
             return Ok(jsonData);
         }
 
+
         [HttpGet("getOverviewAll")]
         public IActionResult GetOverviewAll()
         {
             var data = new[]
             {
-                new {
+                new Overview
+                {
                     pretty_path = "src/my_files.rs",
                     size = 21782,
-                    last_modified = new
+                    last_modified = new LastModified
                     {
                         secs_since_epoch = 1706651511,
                         nanos_since_epoch = 396799014
                     },
-                    tidy_score = new
+                    tidy_score = new TidyScore
                     {
                         grade = 'B',
-                        misnamed = new
+                        misnamed = new Misnamed
                         {
                             grade = 'A'
                         },
-                        unused = new
+                        unused = new Unused
                         {
                             grade = 'A'
                         },
-                        duplicated = new
+                        duplicated = new Duplicated
                         {
                             grade = 'B'
                         }
@@ -143,28 +145,35 @@ namespace WidgetController.Controllers
         {
             var data = new[]
             {
-                new {
+                new Overview
+                {
                     pretty_path = "src/my_files.rs",
                     size = 21782,
-                    last_modified = new
+                    last_modified = new LastModified
                     {
                         secs_since_epoch = 1706651511,
                         nanos_since_epoch = 396799014
                     },
-                    tidy_regle = new
+                    tidy_score = new TidyScore
                     {
                         grade = 'A',
-                        configurations = new[]
+                        misnamed = new Misnamed
                         {
-                            new {
-                                name = "date",
-                                grade = 'A',
-                                weight = 3
-                            },
-                            new {
-                                name = "valid separator",
-                                grade = 'A',
-                                weight = 1.8
+                            grade = 'A',
+                            configurations = new List<Configuration>
+                            {
+                                new Configuration
+                                {
+                                    name = "date",
+                                    grade = 'A',
+                                    weight = 3
+                                },
+                                new Configuration
+                                {
+                                    name = "valid separator",
+                                    grade = 'A',
+                                    weight = 1.8
+                                }
                             }
                         }
                     }
@@ -180,23 +189,31 @@ namespace WidgetController.Controllers
         {
             var data = new[]
             {
-                new {
+                new Overview
+                {
                     pretty_path = "src/my_files.rs",
                     size = 21782,
-                    last_modified = new
+                    last_modified = new LastModified
                     {
                         secs_since_epoch = 1706651511,
                         nanos_since_epoch = 396799014
                     },
-                    tidy_regle = new
+                    tidy_score = new TidyScore
                     {
                         grade = 'B',
-                        configurations = new[]
+                        duplicated = new Duplicated
                         {
-                            new {
-                                name = "occurence",
-                                grade = 'B',
-                                weight = 1
+                            grade = 'B',
+                            configurations = new List<Configuration>
+                            {
+                                new Configuration
+                                {
+                                    name = "occurrence",
+                                    grade = 'B',
+                                    weight = 1,
+                                    description = "The file need to be unique",
+                                    limitInt = 1
+                                }
                             }
                         }
                     }
@@ -206,30 +223,37 @@ namespace WidgetController.Controllers
             var jsonData = JsonConvert.SerializeObject(data);
             return Ok(jsonData);
         }
-
 
         [HttpGet("getOverviewUnused")]
         public IActionResult GetOverviewUnused()
         {
             var data = new[]
             {
-                new {
+                new Overview
+                {
                     pretty_path = "src/my_files.rs",
                     size = 21782,
-                    last_modified = new
+                    last_modified = new LastModified
                     {
                         secs_since_epoch = 1706651511,
                         nanos_since_epoch = 396799014
                     },
-                    tidy_regle = new
+                    tidy_score = new TidyScore
                     {
                         grade = 'C',
-                        configurations = new[]
+                        unused = new Unused
                         {
-                            new {
-                                name = "perished",
-                                grade = 'C',
-                                weight = 1
+                            grade = 'C',
+                            configurations = new List<Configuration>
+                            {
+                                new Configuration
+                                {
+                                    name = "perished",
+                                    grade = 'C',
+                                    weight = 1,
+                                    description = "The file need to be recent enough",
+                                    limitISO = "2024-04-12T00:00:00Z"
+                                }
                             }
                         }
                     }
@@ -240,35 +264,59 @@ namespace WidgetController.Controllers
             return Ok(jsonData);
         }
 
-
         [HttpGet("getTidyRules")]
         public IActionResult GetTidyRules()
         {
-            var data = new[]
+            var data = new TidyRule
             {
-                new {
-                    rules = new[]
+                rules = new List<Rule>
+                {
+                    new Rule
                     {
-                        new {
-                            name = "misnamed",
-                            configurations = new[]
+                        name = "misnamed",
+                        configurations = new List<Configuration>
+                        {
+                            new Configuration
                             {
-                                new { name = "date", weight = 3, description = "The name of the file need to have a date", regex = @"r'_\d{4}\.'", limitInt = null, limitISO = null },
-                                new { name = "valid separator", weight = 1.8, description = "The name of the file need to have 4 separators _", regex = @"r'^[^_]*(_[^_]*){3}$'", limitInt = null, limitISO = null }
+                                name = "date",
+                                weight = 3,
+                                description = "The name of the file need to have a date",
+                                regex = @"r'_\d{4}\.'"
+                            },
+                            new Configuration
+                            {
+                                name = "valid separator",
+                                weight = 1.8,
+                                description = "The name of the file need to have 4 separators _",
+                                regex = @"r'^[^_]*(_[^_]*){3}$'"
                             }
-                        },
-                        new {
-                            name = "duplicate",
-                            configurations = new[]
+                        }
+                    },
+                    new Rule
+                    {
+                        name = "duplicate",
+                        configurations = new List<Configuration>
+                        {
+                            new Configuration
                             {
-                                new { name = "occurence", weight = 1, description = "The file need to be unique", limitInt = 1, regex = null, limitISO = null }
+                                name = "occurrence",
+                                weight = 1,
+                                description = "The file need to be unique",
+                                limitInt = 1
                             }
-                        },
-                        new {
-                            name = "unused",
-                            configurations = new[]
+                        }
+                    },
+                    new Rule
+                    {
+                        name = "unused",
+                        configurations = new List<Configuration>
+                        {
+                            new Configuration
                             {
-                                new { name = "perished", weight = 1, description = "The file need to be recent enough", limitISO = "2024-04-12T00:00:00Z", regex = null, limitInt = null }
+                                name = "perished",
+                                weight = 1,
+                                description = "The file need to be recent enough",
+                                limitISO = "2024-04-12T00:00:00Z"
                             }
                         }
                     }
