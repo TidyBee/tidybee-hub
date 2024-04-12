@@ -4,10 +4,10 @@ namespace DataProcessing.Models
 {
     public class Overview
     {
-        public string pretty_path { get; set; }
+        public string? pretty_path { get; set; }
         public int size { get; set; }
-        public LastModified last_modified { get; set; }
-        public TidyScore tidy_score { get; set; }
+        public LastModified? last_modified { get; set; }
+        public TidyScore? tidy_score { get; set; }
     }
 
     public class LastModified
@@ -19,20 +19,20 @@ namespace DataProcessing.Models
     public class TidyScore
     {
         public char grade { get; set; }
-        public Misnamed misnamed { get; set; }
-        public Unused unused { get; set; }
-        public Duplicated duplicated { get; set; }
+        public Misnamed? misnamed { get; set; }
+        public Unused? unused { get; set; }
+        public Duplicated? duplicated { get; set; }
     }
 
     public class Misnamed
     {
         public char grade { get; set; }
-        public List<Configuration> configurations { get; set; }
+        public List<Configuration>? configurations { get; set; }
     }
 
     public class Configuration
     {
-        public string name { get; set; }
+        public string? name { get; set; }
         public char grade { get; set; }
         public double weight { get; set; }
         public string? regex { get; set; }
@@ -44,23 +44,23 @@ namespace DataProcessing.Models
     public class Unused
     {
         public char grade { get; set; }
-        public List<Configuration> configurations { get; set; }
+        public List<Configuration>? configurations { get; set; }
     }
 
     public class Duplicated
     {
         public char grade { get; set; }
-        public List<Configuration> configurations { get; set; }
+        public List<Configuration>? configurations { get; set; }
     }
 
     public class TidyRule
     {
-        public List<Rule> rules { get; set; }
+        public List<Rule>? rules { get; set; }
     }
 
     public class Rule
     {
-        public string name { get; set; }
-        public List<Configuration> configurations { get; set; }
+        public string? name { get; set; }
+        public List<Configuration>? configurations { get; set; }
     }
 }

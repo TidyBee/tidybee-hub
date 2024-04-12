@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using DataProcessing.Models
 
 namespace WidgetController.Controllers
 {
