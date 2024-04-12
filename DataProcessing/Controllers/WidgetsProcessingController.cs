@@ -253,22 +253,22 @@ namespace WidgetController.Controllers
                             name = "misnamed",
                             configurations = new[]
                             {
-                                new { name = "date", weight = 3, description = "The name of the file need to have a date", regex = @"r'_\d{4}\.'", limitInt: null, limitISO: null },
-                                new { name = "valid separator", weight = 1.8, description = "The name of the file need to have 4 separators _", regex = @"r'^[^_]*(_[^_]*){3}$'", limitInt: null, limitISO: null }
+                                new { name = "date", weight = 3, description = "The name of the file need to have a date", regex = @"r'_\d{4}\.'", limitInt = null, limitISO = null },
+                                new { name = "valid separator", weight = 1.8, description = "The name of the file need to have 4 separators _", regex = @"r'^[^_]*(_[^_]*){3}$'", limitInt = null, limitISO = null }
                             }
                         },
                         new {
                             name = "duplicate",
                             configurations = new[]
                             {
-                                new { name = "occurence", weight = 1, description = "The file need to be unique", limitInt = 1, regex: null, limitISO: null }
+                                new { name = "occurence", weight = 1, description = "The file need to be unique", limitInt = 1, regex = null, limitISO = null }
                             }
                         },
                         new {
                             name = "unused",
                             configurations = new[]
                             {
-                                new { name = "perished", weight = 1, description = "The file need to be recent enough", limitISO = "2024-04-12T00:00:00Z", regex: null, limitInt: null }
+                                new { name = "perished", weight = 1, description = "The file need to be recent enough", limitISO = "2024-04-12T00:00:00Z", regex = null, limitInt = null }
                             }
                         }
                     }
