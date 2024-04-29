@@ -2,7 +2,7 @@
 using Grpc.Core.Interceptors;
 using Microsoft.Extensions.Options;
 
-namespace TestgRPC.Interceptors;
+namespace TidyEvents.Interceptors;
 
 public class AuthInterceptorOption {
     public string HubUrl { get; set; } = string.Empty;

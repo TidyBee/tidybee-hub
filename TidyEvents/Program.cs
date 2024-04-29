@@ -1,5 +1,5 @@
-using TestgRPC.Interceptors;
-using TestgRPC.Services;
+using TidyEvents.Interceptors;
+using TidyEvents.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

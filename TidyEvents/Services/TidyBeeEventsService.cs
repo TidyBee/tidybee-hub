@@ -1,7 +1,7 @@
 using Grpc.Core;
 using Microsoft.AspNetCore.Authentication;
 
-namespace TestgRPC.Services;
+namespace TidyEvents.Services;
 
 public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
 {
