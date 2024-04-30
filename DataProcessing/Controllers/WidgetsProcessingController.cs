@@ -37,6 +37,23 @@ namespace WidgetController.Controllers
             return Ok(jsonData);
         }
 
+        [HttpGet("getTotalMonitored")]
+        public IActionResult getTotalMonitored()
+        {
+            var data = new {
+                title = "total",
+                types = "Number",
+                data = new
+                {
+                    percentage = "+2",
+                    value = "105",
+                    status = true
+                }
+            };
+            var jsonData = JsonConvert.SerializeObject(data);
+            return Ok(jsonData);
+        }
+
         [HttpGet("getGraphWidget")]
         public IActionResult getGraphWidget()
         {
