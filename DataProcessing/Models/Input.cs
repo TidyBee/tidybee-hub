@@ -8,7 +8,7 @@ namespace DataProcessing.Models
         public int size { get; set; }
         public DateTime? last_modified { get; set; }
         public char grade { get; set; }
-        public List<InputConfiguration?> configurations { get; set; }
+        public List<InputConfiguration>? configurations { get; set; }
     }
 
     public class InputConfiguration
@@ -25,6 +25,6 @@ namespace DataProcessing.Models
     public class InputRule
     {
         public string? name { get; set; }
-        public List<InputConfiguration?> configurations { get; set; }
+        public List<InputConfiguration>? configurations { get; set; }
     }
 }
