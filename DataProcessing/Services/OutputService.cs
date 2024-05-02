@@ -18,7 +18,7 @@ public class OutputService
             data = new
             {
                 percentage = "+8",
-                value = "408",
+                value = "407",
                 status = false
             }
         };
