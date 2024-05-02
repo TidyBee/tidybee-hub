@@ -25,6 +25,6 @@ namespace DataProcessing.Models
     public class InputRule
     {
         public string? name { get; set; }
-        public List<InputConfiguration> configurations { get; set; }
+        public List<InputConfiguration?> configurations { get; set; }
     }
 }
