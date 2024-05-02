@@ -14,7 +14,7 @@ namespace WidgetController.Controllers
         public WidgetController(OutputService outputService, InputService inputService)
         {
             _outputService = outputService;
-            _inputService = inputService
+            _inputService = inputService;
         }
 
         [HttpGet("getTextWidgetunused")]
