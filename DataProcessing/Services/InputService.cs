@@ -62,7 +62,7 @@ public class InputService
                                     }
                                 }
                             }
-                        }
+                        };
         return rules;
     }
 
