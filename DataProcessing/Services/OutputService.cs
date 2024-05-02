@@ -272,62 +272,51 @@ public class OutputService
         return jsonData;
     }
 
-    public string getTidyRules()
+    public string getTidyRules(InputRules rules)
     {
+        var tidyRules = new List<Rule>();
+
+        foreach (var inputRule in rules)
+        {
+            var configurations = new List<Configuration>();
+
+            foreach (var inputConfiguration in inputRule.configurations)
+            {
+                var configuration = new Configuration
+                {
+                    name = inputConfiguration.name,
+                    weight = inputConfiguration.weight,
+                    description = inputConfiguration.description
+                };
+
+                if (inputConfiguration.limitInt.HasValue)
+                {
+                    configuration.limitInt = inputConfiguration.limitInt.Value;
+                }
+                else if (inputConfiguration.limitISO != null)
+                {
+                    configuration.limitISO = inputConfiguration.limitISO;
+                }
+                else
+                {
+                    configuration.regex = inputConfiguration.regex;
+                }
+
+                configurations.Add(configuration);
+            }
+
+            var rule = new Rule
+            {
+                name = inputRule.name,
+                configurations = configurations
+            };
+
+            tidyRules.Add(rule);
+        }
+
         var data = new TidyRule
         {
-            rules = new List<Rule>
-                {
-                    new Rule
-                    {
-                        name = "misnamed",
-                        configurations = new List<Configuration>
-                        {
-                            new Configuration
-                            {
-                                name = "date",
-                                weight = 3,
-                                description = "The name of the file need to have a date",
-                                regex = @"r'_\d{4}\.'"
-                            },
-                            new Configuration
-                            {
-                                name = "valid separator",
-                                weight = 1.8,
-                                description = "The name of the file need to have 4 separators _",
-                                regex = @"r'^[^_]*(_[^_]*){3}$'"
-                            }
-                        }
-                    },
-                    new Rule
-                    {
-                        name = "duplicate",
-                        configurations = new List<Configuration>
-                        {
-                            new Configuration
-                            {
-                                name = "occurrence",
-                                weight = 1,
-                                description = "The file need to be unique",
-                                limitInt = 1
-                            }
-                        }
-                    },
-                    new Rule
-                    {
-                        name = "unused",
-                        configurations = new List<Configuration>
-                        {
-                            new Configuration
-                            {
-                                name = "perished",
-                                weight = 1,
-                                description = "The file need to be recent enough",
-                                limitISO = "2024-04-12T00:00:00Z"
-                            }
-                        }
-                    }
-                }
+            rules = tidyRules
         };
 
         var jsonData = JsonConvert.SerializeObject(data);

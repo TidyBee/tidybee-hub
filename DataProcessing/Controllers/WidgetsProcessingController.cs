@@ -9,10 +9,12 @@ namespace WidgetController.Controllers
     public class WidgetController : ControllerBase
     {
         private OutputService _outputService;
+        private InputService _inputService;
 
-        public WidgetController(OutputService outputService)
+        public WidgetController(OutputService outputService, InputService inputService)
         {
             _outputService = outputService;
+            _inputService = inputService
         }
 
         [HttpGet("getTextWidgetunused")]
@@ -85,7 +87,7 @@ namespace WidgetController.Controllers
         [HttpGet("getTidyRules")]
         public IActionResult GetTidyRules()
         {
-            return Ok(_outputService.getTidyRules());
+            return Ok(_outputService.getTidyRules(_inputService.getRules()));
         }
     }
 }
