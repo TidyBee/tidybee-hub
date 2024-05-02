@@ -280,26 +280,26 @@ public class OutputService
         {
             var configurations = new List<Configuration>();
 
-            foreach (var inputConfiguration in inputRule.configurations)
+            foreach (var inputConfiguration in inputRule.configurations!)
             {
                 var configuration = new Configuration
                 {
-                    name = inputConfiguration.name,
-                    weight = inputConfiguration.weight,
-                    description = inputConfiguration.description
+                    name = inputConfiguration.name!,
+                    weight = inputConfiguration.weight!,
+                    description = inputConfiguration.description!
                 };
 
-                if (inputConfiguration.limitInt.HasValue)
+                if (inputConfiguration.limitInt != null)
                 {
-                    configuration.limitInt = inputConfiguration.limitInt.Value;
+                    configuration.limitInt = inputConfiguration.limitInt!;
                 }
                 else if (inputConfiguration.limitISO != null)
                 {
-                    configuration.limitISO = inputConfiguration.limitISO;
+                    configuration.limitISO = inputConfiguration.limitISO!;
                 }
                 else
                 {
-                    configuration.regex = inputConfiguration.regex;
+                    configuration.regex = inputConfiguration.regex!;
                 }
 
                 configurations.Add(configuration);
@@ -307,7 +307,7 @@ public class OutputService
 
             var rule = new Rule
             {
-                name = inputRule.name,
+                name = inputRule.name!,
                 configurations = configurations
             };
 
