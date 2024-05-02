@@ -36,7 +36,7 @@ namespace WidgetController.Controllers
         [HttpGet("getGraphWidget")]
         public IActionResult getGraphWidget()
         {
-            return Ok(_outputService.getGraphWidget);
+            return Ok(_outputService.getGraphWidget());
         }
 
         [HttpGet("getTextWidgetbadname")]
