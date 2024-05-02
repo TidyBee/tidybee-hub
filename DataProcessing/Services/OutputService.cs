@@ -285,7 +285,7 @@ public class OutputService
                 var configuration = new Configuration
                 {
                     name = inputConfiguration.name!,
-                    weight = inputConfiguration.weight!,
+                    weight = double(inputConfiguration.weight),
                     description = inputConfiguration.description!
                 };
 
