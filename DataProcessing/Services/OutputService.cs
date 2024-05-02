@@ -272,7 +272,7 @@ public class OutputService
         return jsonData;
     }
 
-    public string getTidyRules(InputRules rules)
+    public string getTidyRules(InputRule rules)
     {
         var tidyRules = new List<Rule>();
 
