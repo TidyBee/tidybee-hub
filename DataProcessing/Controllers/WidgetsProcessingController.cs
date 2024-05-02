@@ -8,22 +8,18 @@ namespace WidgetController.Controllers
     [Route("[controller]")]
     public class WidgetController : ControllerBase
     {
+        private OutputService _outputService;
+
+        public WidgetController(OutputService outputService)
+        {
+            _outputService = outputService;
+        }
+
         [HttpGet("getTextWidgetunused")]
         public IActionResult GetTextWidgetunused()
         {
-            var data = new
-            {
-                title = "unused",
-                types = "Number",
-                data = new
-                {
-                    percentage = "+8",
-                    value = "408",
-                    status = false
-                }
-            };
-            var jsonData = JsonConvert.SerializeObject(data);
-            return Ok(jsonData);
+
+            return Ok(_outputService.GetTextWidgetUnused());
         }
 
         [HttpGet("getGradeWidget")]
