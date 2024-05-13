@@ -59,7 +59,6 @@ namespace WidgetController.Controllers
             return Ok(_outputService.getTextWidgetstorage());
         }
 
-
         [HttpGet("getOverviewAll")]
         public IActionResult GetOverviewAll()
         {
