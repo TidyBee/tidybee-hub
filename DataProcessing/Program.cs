@@ -15,6 +15,8 @@ builder.Services.AddCors(options =>
             .WithOrigins("http://localhost:8080")
             .AllowCredentials());
 });
+builder.Services.AddScoped<OutputService>();
+builder.Services.AddScoped<InputService>();
 
 var app = builder.Build();
 
