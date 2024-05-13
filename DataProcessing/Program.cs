@@ -6,13 +6,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
+var frontendUrl = builder.Configuration["FrontendUrl"];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy",
         builder => builder
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .WithOrigins("http://localhost:8080")
+            .WithOrigins(frontendUrl ?? string.Empty)
             .AllowCredentials());
 });
 builder.Services.AddScoped<OutputService>();
