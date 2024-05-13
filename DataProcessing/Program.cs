@@ -34,6 +34,4 @@ app.UseCors("CorsPolicy");
 app.MapControllers();
 app.MapHub<WidgetHub>("/widgetHub");
 
-app.MapControllers();
-
 app.Run();
