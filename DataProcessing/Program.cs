@@ -14,7 +14,7 @@ builder.Services.AddCors(options =>
         builder => builder
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .WithOrigins(frontendUrl ?? string.Empty)
+            .WithOrigins(frontendUrl ?? "http://localhost:8080")
             .AllowCredentials());
 });
 builder.Services.AddScoped<OutputService>();
