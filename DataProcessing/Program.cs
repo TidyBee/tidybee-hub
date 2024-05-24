@@ -1,3 +1,5 @@
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -6,17 +8,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 
-var frontendUrl = builder.Configuration["FrontendUrl"];
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy",
-        builder => builder
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .WithOrigins(frontendUrl ?? "http://localhost:8080")
-            .AllowCredentials());
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+    policy  => {
+        policy.WithOrigins(
+            "http://localhost:8080"
+        );
+    });
 });
+
 builder.Services.AddScoped<OutputService>();
 builder.Services.AddScoped<InputService>();
 
@@ -28,8 +30,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
-app.UseCors("CorsPolicy");
 
 app.MapControllers();
 app.MapHub<WidgetHub>("/widgetHub");
