@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using DataProcessing.Models;
 
 namespace WidgetController.Controllers
 {
@@ -7,117 +8,86 @@ namespace WidgetController.Controllers
     [Route("[controller]")]
     public class WidgetController : ControllerBase
     {
+        private OutputService _outputService;
+        private InputService _inputService;
+
+        public WidgetController(OutputService outputService, InputService inputService)
+        {
+            _outputService = outputService;
+            _inputService = inputService;
+        }
+
         [HttpGet("getTextWidgetunused")]
         public IActionResult GetTextWidgetunused()
         {
-            var data = new
-            {
-                title = "unused",
-                types = "Number",
-                data = new
-                {
-                    percentage = "+8",
-                    value = "408",
-                    status = false
-                }
-            };
-            var jsonData = JsonConvert.SerializeObject(data);
-            return Ok(jsonData);
+            return Ok(_outputService.getTextWidgetUnused());
         }
 
         [HttpGet("getGradeWidget")]
         public IActionResult getGradeWidget()
         {
-            var data = new
-            {
-                grade = "B"
-            };
-            var jsonData = JsonConvert.SerializeObject(data);
-            return Ok(jsonData);
+            return Ok(_outputService.getGradeWidget());
+        }
+
+        [HttpGet("getTotalMonitored")]
+        public IActionResult getTotalMonitored()
+        {
+            return Ok(_outputService.getTotalMonitored());
         }
 
         [HttpGet("getGraphWidget")]
         public IActionResult getGraphWidget()
         {
-            var data = new
-            {
-                series = new[] { 20, 32, 23, 15, 10 }
-            };
-            var jsonData = JsonConvert.SerializeObject(data);
-            return Ok(jsonData);
+            return Ok(_outputService.getGraphWidget());
         }
 
         [HttpGet("getTextWidgetbadname")]
         public IActionResult GetTextWidgetbadname()
         {
-            var data = new
-            {
-                title = "badname",
-                types = "Number",
-                data = new
-                {
-                    percentage = "-12",
-                    value = "259",
-                    status = true
-                }
-            };
-            var jsonData = JsonConvert.SerializeObject(data);
-            return Ok(jsonData);
+            return Ok(_outputService.getTextWidgetbadname());
         }
 
         [HttpGet("getTextWidgetduplicate")]
         public IActionResult GetTextWidgetduplicate()
         {
-            var data = new
-            {
-                title = "duplicate",
-                types = "Number",
-                data = new
-                {
-                    percentage = "+19",
-                    value = "124",
-                    status = false
-                }
-            };
-            var jsonData = JsonConvert.SerializeObject(data);
-            return Ok(jsonData);
-        }
-
-        [HttpGet("getTextWidgetheavy")]
-        public IActionResult GetTextWidgetheavy()
-        {
-            var data = new
-            {
-                title = "heavy",
-                types = "Number",
-                data = new
-                {
-                    percentage = "-5",
-                    value = "86",
-                    status = true
-                }
-            };
-            var jsonData = JsonConvert.SerializeObject(data);
-            return Ok(jsonData);
+            return Ok(_outputService.getTextWidgetduplicate());
         }
 
         [HttpGet("getTextWidgetstorage")]
         public IActionResult GetTextWidgetstorage()
         {
-            var data = new
-            {
-                title = "storage",
-                types = "Graph",
-                data = new
-                {
-                    percentage = "+4",
-                    value = "237/512GB",
-                    valuePercentage = "28.32",
-                    status = false
-                }
-            };
-            var jsonData = JsonConvert.SerializeObject(data);
-            return Ok(jsonData);
+            return Ok(_outputService.getTextWidgetstorage());
+        }
+
+
+        [HttpGet("getOverviewAll")]
+        public IActionResult GetOverviewAll()
+        {
+            return Ok(_outputService.getOverviewAll());
+        }
+
+        [HttpGet("getOverviewMisnamed")]
+        public IActionResult GetOverviewMisnamed()
+        {
+            return Ok(_outputService.getOverviewMisnamed());
+        }
+
+        [HttpGet("getOverviewDuplicate")]
+        public IActionResult GetOverviewDuplicate()
+        {
+            return Ok(_outputService.getOverviewDuplicate());
+        }
+
+        [HttpGet("getOverviewUnused")]
+        public IActionResult GetOverviewUnused()
+        {
+            return Ok(_outputService.getOverviewUnused());
+        }
+
+        [HttpGet("getTidyRules")]
+        public IActionResult GetTidyRules()
+        {
+            return Ok(_outputService.getTidyRules(_inputService.getRules()));
         }
     }
 }
