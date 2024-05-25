@@ -14,7 +14,7 @@ public class InputService
 
     public async List<DataProcessing.Models.Rule> getRules()
     {
-        var rules = new List<DataProcessing.Models.Rule> = await _context.Rules.ToListAsync();
+        List<DataProcessing.Models.Rule> rules = await _context.Rules.ToListAsync();
         return rules;
     }
 
