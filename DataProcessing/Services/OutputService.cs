@@ -280,7 +280,7 @@ public class OutputService
         {
             var configurations = new List<Configuration>();
 
-            foreach (var inputConfiguration in JsonConvert.DeserializeObject<any>(inputRule.RulesConfig).regex_rules)
+            foreach (var inputConfiguration in JsonConvert.DeserializeObject(inputRule.RulesConfig).regex_rules)
             {
                 var configuration = new Configuration
                 {
