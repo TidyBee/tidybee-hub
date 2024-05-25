@@ -279,8 +279,9 @@ public class OutputService
         foreach (var inputRule in rules)
         {
             var configurations = new List<Configuration>();
+            dynamic temp = JsonConvert.DeserializeObject(inputRule.RulesConfig);
 
-            foreach (var inputConfiguration in JsonConvert.DeserializeObject(inputRule.RulesConfig).regex_rules)
+            foreach (var inputConfiguration in temp.regex_rules)
             {
                 var configuration = new Configuration
                 {
