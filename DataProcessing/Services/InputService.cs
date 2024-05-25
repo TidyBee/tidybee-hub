@@ -12,9 +12,9 @@ public class InputService
         _context = context;
     }
 
-    public async Task<List<DataProcessing.Models.Rule>> getRules()
+    public async Task<List<DataProcessing.Models.Input.Rule>> getRules()
     {
-        List<DataProcessing.Models.Rule> rules = await _context.Rules.ToListAsync();
+        List<DataProcessing.Models.Input.Rule> rules = await _context.Rules.ToListAsync();
         return rules;
     }
 
