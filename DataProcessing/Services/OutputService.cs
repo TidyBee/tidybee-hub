@@ -279,7 +279,7 @@ public class OutputService
         foreach (var inputRule in rules)
         {
             var configurations = new List<Configuration>();
-            dynamic temp = JsonConvert.DeserializeObject(inputRule.RulesConfig!);
+            dynamic temp = JsonConvert.DeserializeObject(inputRule.RulesConfig!)!;
 
             if (temp!.regex_rules) {
                 foreach (var inputConfiguration in temp.regex_rules)
@@ -287,7 +287,7 @@ public class OutputService
                     var configuration = new Configuration
                     {
                         name = inputConfiguration.name!,
-                        weight = inputConfiguration.weight ?? 1.0,
+                        weight = inputConfiguration.weight!,
                         description = inputConfiguration.description!
                     };
 
@@ -311,7 +311,7 @@ public class OutputService
                 {
                     name = inputRule.Name!,
                     description = inputRule.Description!,
-                    weight = inputRule.Weight ?? 1.0,
+                    weight = inputRule.Weight!,
                 };
                 if (temp.max_occurrences != null)
                 {
@@ -328,7 +328,7 @@ public class OutputService
             {
                 name = inputRule.Name!,
                 description = inputRule.Description!,
-                weight = inputRule.Weight ?? 1.0,
+                weight = inputRule.Weight!,
                 configurations = configurations
             };
 
