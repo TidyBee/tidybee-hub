@@ -4,16 +4,14 @@ using DataProcessing;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddDbContext<DatabaseContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<OutputService>();
 builder.Services.AddScoped<InputService>();
-
-Console.WriteLine(builder.Configuration.GetConnectionString("DatabaseConnection"));
-builder.Services.AddDbContext<DatabaseContext>(options =>
-    options.UseNpgsql("Host=hub-postgres;Database=db;Username=user;Password=pass"));
 
 var app = builder.Build();
 var scope = app.Services.CreateScope();
