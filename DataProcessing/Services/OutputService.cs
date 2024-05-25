@@ -272,7 +272,7 @@ public class OutputService
         return jsonData;
     }
 
-    public string getTidyRules(List<InputRule> rules)
+    public string getTidyRules(List<DataProcessing.Models.Input.Rule> rules)
     {
         var tidyRules = new List<Rule>();
 
@@ -280,7 +280,7 @@ public class OutputService
         {
             var configurations = new List<Configuration>();
 
-            foreach (var inputConfiguration in inputRule.configurations!)
+            foreach (var inputConfiguration in inputRule.RulesConfig.regex_rules)
             {
                 var configuration = new Configuration
                 {
@@ -289,13 +289,13 @@ public class OutputService
                     description = inputConfiguration.description!
                 };
 
-                if (inputConfiguration.limitInt != null)
+                if (inputConfiguration.max_occurrences != null)
                 {
-                    configuration.limitInt = inputConfiguration.limitInt!;
+                    configuration.limitInt = inputConfiguration.max_occurrences!;
                 }
-                else if (inputConfiguration.limitISO != null)
+                else if (inputConfiguration.expiration_days != null)
                 {
-                    configuration.limitISO = inputConfiguration.limitISO!;
+                    configuration.limitISO = inputConfiguration.expiration_days!;
                 }
                 else
                 {
@@ -308,6 +308,8 @@ public class OutputService
             var rule = new Rule
             {
                 name = inputRule.name!,
+                description = inputRule.description,
+                weight = inputRule.weight,
                 configurations = configurations
             };
 

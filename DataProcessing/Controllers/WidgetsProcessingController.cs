@@ -85,9 +85,9 @@ namespace WidgetController.Controllers
         }
 
         [HttpGet("getTidyRules")]
-        public IActionResult GetTidyRules()
+        public async IActionResult GetTidyRules()
         {
-            return Ok(_outputService.getTidyRules(_inputService.getRules()));
+            return Ok(_outputService.getTidyRules(await _inputService.getRules()));
         }
     }
 }
