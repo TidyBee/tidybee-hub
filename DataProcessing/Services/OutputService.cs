@@ -281,7 +281,7 @@ public class OutputService
             var configurations = new List<Configuration>();
             dynamic temp = JsonConvert.DeserializeObject(inputRule.RulesConfig!)!;
 
-            if (temp!.regex_rules) {
+            if (temp!.regex_rules != null) {
                 foreach (var inputConfiguration in temp.regex_rules)
                 {
                     var configuration = new Configuration
