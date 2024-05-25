@@ -281,36 +281,54 @@ public class OutputService
             var configurations = new List<Configuration>();
             dynamic temp = JsonConvert.DeserializeObject(inputRule.RulesConfig);
 
-            foreach (var inputConfiguration in temp.regex_rules)
-            {
+            if (temp.regex_rules) {
+                foreach (var inputConfiguration in temp.regex_rules)
+                {
+                    var configuration = new Configuration
+                    {
+                        name = inputConfiguration.name!,
+                        weight = inputConfiguration.weight ?? 1,
+                        description = inputConfiguration.description!
+                    };
+
+                    if (inputConfiguration.max_occurrences != null)
+                    {
+                        configuration.limitInt = inputConfiguration.max_occurrences!;
+                    }
+                    else if (inputConfiguration.expiration_days != null)
+                    {
+                        configuration.limitISO = inputConfiguration.expiration_days!;
+                    }
+                    else
+                    {
+                        configuration.regex = inputConfiguration.regex!;
+                    }
+
+                    configurations.Add(configuration);
+                }
+            } else {
                 var configuration = new Configuration
                 {
-                    name = inputConfiguration.name!,
-                    weight = inputConfiguration.weight ?? 1,
-                    description = inputConfiguration.description!
-                };
-
-                if (inputConfiguration.max_occurrences != null)
-                {
-                    configuration.limitInt = inputConfiguration.max_occurrences!;
+                    name = inputRule.Name!,
+                    description = inputRule.Description!,
+                    weight = inputRule.Weight ?? 1,
                 }
-                else if (inputConfiguration.expiration_days != null)
+                if (inputRule.max_occurrences != null)
                 {
-                    configuration.limitISO = inputConfiguration.expiration_days!;
+                    configuration.limitInt = inputRule.max_occurrences!;
                 }
-                else
+                else if (inputRule.expiration_days != null)
                 {
-                    configuration.regex = inputConfiguration.regex!;
+                    configuration.limitISO = inputRule.expiration_days!;
                 }
-
                 configurations.Add(configuration);
             }
 
             var rule = new DataProcessing.Models.Rule
             {
                 name = inputRule.Name!,
-                description = inputRule.Description,
-                weight = inputRule.Weight,
+                description = inputRule.Description!,
+                weight = inputRule.Weight ?? 1,
                 configurations = configurations
             };
 
