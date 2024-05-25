@@ -279,15 +279,15 @@ public class OutputService
         foreach (var inputRule in rules)
         {
             var configurations = new List<Configuration>();
-            dynamic temp = JsonConvert.DeserializeObject(inputRule.RulesConfig);
+            dynamic temp = JsonConvert.DeserializeObject(inputRule.RulesConfig!);
 
-            if (temp.regex_rules) {
+            if (temp!.regex_rules) {
                 foreach (var inputConfiguration in temp.regex_rules)
                 {
                     var configuration = new Configuration
                     {
                         name = inputConfiguration.name!,
-                        weight = inputConfiguration.weight ?? 1,
+                        weight = inputConfiguration.weight ?? 1.0,
                         description = inputConfiguration.description!
                     };
 
@@ -311,15 +311,15 @@ public class OutputService
                 {
                     name = inputRule.Name!,
                     description = inputRule.Description!,
-                    weight = inputRule.Weight ?? 1,
+                    weight = inputRule.Weight ?? 1.0,
                 };
-                if (inputRule.max_occurrences != null)
+                if (temp.max_occurrences != null)
                 {
-                    configuration.limitInt = inputRule.max_occurrences!;
+                    configuration.limitInt = temp.max_occurrences!;
                 }
-                else if (inputRule.expiration_days != null)
+                else if (temp.expiration_days != null)
                 {
-                    configuration.limitISO = inputRule.expiration_days!;
+                    configuration.limitISO = temp.expiration_days!;
                 }
                 configurations.Add(configuration);
             }
@@ -328,7 +328,7 @@ public class OutputService
             {
                 name = inputRule.Name!,
                 description = inputRule.Description!,
-                weight = inputRule.Weight ?? 1,
+                weight = inputRule.Weight ?? 1.0,
                 configurations = configurations
             };
 
