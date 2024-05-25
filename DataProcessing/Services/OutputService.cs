@@ -280,7 +280,7 @@ public class OutputService
         {
             var configurations = new List<Configuration>();
 
-            foreach (var inputConfiguration in inputRule.RulesConfig.regex_rules)
+            foreach (var inputConfiguration in JsonConvert.DeserializeObject<any>(inputRule.RulesConfig).regex_rules)
             {
                 var configuration = new Configuration
                 {
@@ -305,7 +305,7 @@ public class OutputService
                 configurations.Add(configuration);
             }
 
-            var rule = new Rule
+            var rule = new DataProcessing.Models.Rule
             {
                 name = inputRule.name!,
                 description = inputRule.description,
