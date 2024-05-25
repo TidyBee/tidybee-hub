@@ -312,7 +312,7 @@ public class OutputService
                     name = inputRule.Name!,
                     description = inputRule.Description!,
                     weight = inputRule.Weight ?? 1,
-                }
+                };
                 if (inputRule.max_occurrences != null)
                 {
                     configuration.limitInt = inputRule.max_occurrences!;
