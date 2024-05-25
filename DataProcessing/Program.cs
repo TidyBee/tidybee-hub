@@ -11,8 +11,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<OutputService>();
 builder.Services.AddScoped<InputService>();
 
+Console.WriteLine(builder.Configuration.GetConnectionString("DatabaseConnection"));
 builder.Services.AddDbContext<DatabaseContext>(options =>
-    options.UseNpgsql("Host=hub-postgres;Database=db;Username=user;Password=pass"));
+    options.UseNpgsql("Host=hub-postgres;Database=db;Username=user;Password=pass");
 
 var app = builder.Build();
 var scope = app.Services.CreateScope();
