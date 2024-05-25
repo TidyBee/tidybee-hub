@@ -308,9 +308,9 @@ public class OutputService
 
             var rule = new DataProcessing.Models.Rule
             {
-                name = inputRule.name!,
-                description = inputRule.description,
-                weight = inputRule.weight,
+                name = inputRule.Name!,
+                description = inputRule.Description,
+                weight = inputRule.Weight,
                 configurations = configurations
             };
 
