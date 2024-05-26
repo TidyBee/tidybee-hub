@@ -47,7 +47,7 @@ public class OutputService
             { 1, 'E' }
         };
 
-        List<int> numericalScores = files.Select(file => gradeToValue[file]).ToList();
+        List<int> numericalScores = files.Select(file => gradeToValue[file.GlobalScore]).ToList();
 
         double averageValue = numericalScores.Average();
 
@@ -81,7 +81,7 @@ public class OutputService
 
     public string getGraphWidget(List<DataProcessing.Models.Input.File> files)
     {
-        List<char> adjustedFiles = files.Select(file => file == 'U' ? 'A' : file).ToList();
+        List<char> adjustedFiles = files.Select(file => file.GlobalScore == 'U' ? 'A' : file.GlobalScore).ToList();
 
         Dictionary<char, int> gradeCounts = new Dictionary<char, int>
         {

@@ -36,7 +36,7 @@ namespace WidgetController.Controllers
         }
 
         [HttpGet("getGraphWidget")]
-        public IActionResult getGraphWidget()
+        public async Task<IActionResult> getGraphWidget()
         {
             return Ok(_outputService.getGraphWidget(await _inputService.getFiles()));
         }
