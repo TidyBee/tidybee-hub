@@ -26,11 +26,37 @@ public class OutputService
         return jsonData;
     }
 
-    public string getGradeWidget()
+    public string getGradeWidget(List<DataProcessing.Models.Input.File> files)
     {
+        Dictionary<char, int> gradeToValue = new Dictionary<char, int>
+        {
+            { 'A', 5 },
+            { 'B', 4 },
+            { 'C', 3 },
+            { 'D', 2 },
+            { 'E', 1 },
+            { 'U', 5 } // Treat 'U' as 'A'
+        };
+
+        Dictionary<int, char> valueToGrade = new Dictionary<int, char>
+        {
+            { 5, 'A' },
+            { 4, 'B' },
+            { 3, 'C' },
+            { 2, 'D' },
+            { 1, 'E' }
+        };
+
+        List<int> numericalScores = files.Select(file => gradeToValue[file]).ToList();
+
+        double averageValue = numericalScores.Average();
+
+        int roundedAverageValue = (int)Math.Round(averageValue);
+
+
         var data = new
         {
-            grade = "B"
+            grade = valueToGrade[roundedAverageValue]
         };
         var jsonData = JsonConvert.SerializeObject(data);
         return jsonData;
