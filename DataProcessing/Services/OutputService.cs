@@ -18,7 +18,7 @@ public class OutputService
             data = new
             {
                 percentage = "+0",
-                value = files.Count(file => file.PerishedScore != 'A');,
+                value = files.Count(file => file.PerishedScore != 'A'),
                 status = true
             }
         };
@@ -126,7 +126,7 @@ public class OutputService
             data = new
             {
                 percentage = "+0",
-                value = files.Count(file => file.MisnamedScore != 'A');,
+                value = files.Count(file => file.MisnamedScore != 'A'),
                 status = true
             }
         };
@@ -143,7 +143,7 @@ public class OutputService
             data = new
             {
                 percentage = "+0",
-                value = files.Count(file => file.DuplicatedScore != 'A');,
+                value = files.Count(file => file.DuplicatedScore != 'A'),
                 status = true
             }
         };
