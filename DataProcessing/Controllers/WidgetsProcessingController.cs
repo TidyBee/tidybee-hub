@@ -30,9 +30,9 @@ namespace WidgetController.Controllers
         }
 
         [HttpGet("getTotalMonitored")]
-        public IActionResult getTotalMonitored()
+        public async Task<IActionResult> getTotalMonitored()
         {
-            return Ok(_outputService.getTotalMonitored());
+            return Ok(_outputService.getTotalMonitored(await _inputService.getFiles()));
         }
 
         [HttpGet("getGraphWidget")]
@@ -48,7 +48,7 @@ namespace WidgetController.Controllers
         }
 
         [HttpGet("getTextWidgetduplicate")]
-        public Task<IActionResult> GetTextWidgetduplicate()
+        public async Task<IActionResult> GetTextWidgetduplicate()
         {
             return Ok(_outputService.getTextWidgetduplicate(await _inputService.getFiles()));
         }
