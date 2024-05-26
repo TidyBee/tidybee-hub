@@ -67,21 +67,21 @@ namespace WidgetController.Controllers
         }
 
         [HttpGet("getOverviewMisnamed")]
-        public IActionResult GetOverviewMisnamed()
+        public async Task<IActionResult> GetOverviewMisnamed()
         {
-            return Ok(_outputService.getOverviewMisnamed());
+            return Ok(_outputService.getOverviewMisnamed(await _inputService.getFiles(), await _inputService.getRules()));
         }
 
         [HttpGet("getOverviewDuplicate")]
-        public IActionResult GetOverviewDuplicate()
+        public async Task<IActionResult> GetOverviewDuplicate()
         {
-            return Ok(_outputService.getOverviewDuplicate());
+            return Ok(_outputService.getOverviewDuplicate(await _inputService.getFiles(), await _inputService.getRules()));
         }
 
         [HttpGet("getOverviewUnused")]
-        public IActionResult GetOverviewUnused()
+        public async Task<IActionResult> GetOverviewUnused()
         {
-            return Ok(_outputService.getOverviewUnused());
+            return Ok(_outputService.getOverviewUnused(await _inputService.getFiles(), await _inputService.getRules()));
         }
 
         [HttpGet("getTidyRules")]
