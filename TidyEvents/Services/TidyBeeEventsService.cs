@@ -71,7 +71,6 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
         {
             try
             {
-                _logger.LogError(e, $"Executing stored procedure {sp}");
                 await _context.Database.ExecuteSqlAsync(sp);
             }
             catch (NpgsqlException e)
