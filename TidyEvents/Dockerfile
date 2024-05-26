@@ -1,7 +1,7 @@
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG TARGETARCH
 WORKDIR /src
-COPY TidyEvents.csproj ./
+COPY TidyEvents/TidyEvents.csproj ./
 RUN dotnet restore "./TidyEvents.csproj" -a $TARGETARCH
 COPY . ./
 RUN dotnet build "TidyEvents.csproj" -c Release -o /app/build -a $TARGETARCH
