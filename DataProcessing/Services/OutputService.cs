@@ -235,7 +235,8 @@ public class OutputService
                         {
                             name = inputConfiguration.name!,
                             weight = inputConfiguration.weight!,
-                            description = inputConfiguration.description!
+                            description = inputConfiguration.description!,
+                            grade = file.MisnamedScore == 'U' ? 'E' : file.MisnamedScore
                         };
 
                         if (inputConfiguration.max_occurrences != null)
@@ -284,10 +285,10 @@ public class OutputService
                     },
                     tidy_score = new TidyScore
                     {
-                        grade = file.GlobalScore,
+                        grade = file.GlobalScore == 'U' ? 'E' : file.GlobalScore,
                         misnamed = new Misnamed
                         {
-                            grade = file.MisnamedScore,
+                            grade = file.MisnamedScore == 'U' ? 'E' : file.MisnamedScore,
                             configurations = configurations
                         }
                     }
@@ -323,7 +324,8 @@ public class OutputService
                         {
                             name = inputConfiguration.name!,
                             weight = inputConfiguration.weight!,
-                            description = inputConfiguration.description!
+                            description = inputConfiguration.description!,
+                            grade = file.DuplicatedScore == 'U' ? 'E' : file.DuplicatedScore
                         };
 
                         if (inputConfiguration.max_occurrences != null)
@@ -375,7 +377,7 @@ public class OutputService
                         grade = file.GlobalScore,
                         duplicated = new Duplicated
                         {
-                            grade = file.DuplicatedScore,
+                            grade = file.DuplicatedScore == 'U' ? 'E' : file.DuplicatedScore,
                             configurations = configurations
                         }
                     }
@@ -411,7 +413,8 @@ public class OutputService
                         {
                             name = inputConfiguration.name!,
                             weight = inputConfiguration.weight!,
-                            description = inputConfiguration.description!
+                            description = inputConfiguration.description!,
+                            grade = file.PerishedScore == 'U' ? 'E' : file.PerishedScore
                         };
 
                         if (inputConfiguration.max_occurrences != null)
@@ -463,7 +466,7 @@ public class OutputService
                         grade = file.GlobalScore,
                         unused = new Unused
                         {
-                            grade = file.PerishedScore,
+                            grade = file.PerishedScore == 'U' ? 'E' : file.PerishedScore,
                             configurations = configurations
                         }
                     }
