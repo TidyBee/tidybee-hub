@@ -18,9 +18,9 @@ namespace WidgetController.Controllers
         }
 
         [HttpGet("getTextWidgetunused")]
-        public IActionResult GetTextWidgetunused()
+        public async Task<IActionResult> GetTextWidgetunused()
         {
-            return Ok(_outputService.getTextWidgetUnused());
+            return Ok(_outputService.getTextWidgetUnused(await _inputService.getFiles()));
         }
 
         [HttpGet("getGradeWidget")]
@@ -42,21 +42,21 @@ namespace WidgetController.Controllers
         }
 
         [HttpGet("getTextWidgetbadname")]
-        public IActionResult GetTextWidgetbadname()
+        public async Task<IActionResult> GetTextWidgetbadname()
         {
-            return Ok(_outputService.getTextWidgetbadname());
+            return Ok(_outputService.getTextWidgetbadname(await _inputService.getFiles()));
         }
 
         [HttpGet("getTextWidgetduplicate")]
-        public IActionResult GetTextWidgetduplicate()
+        public Task<IActionResult> GetTextWidgetduplicate()
         {
-            return Ok(_outputService.getTextWidgetduplicate());
+            return Ok(_outputService.getTextWidgetduplicate(await _inputService.getFiles()));
         }
 
         [HttpGet("getTextWidgetstorage")]
-        public IActionResult GetTextWidgetstorage()
+        public async Task<IActionResult> GetTextWidgetstorage()
         {
-            return Ok(_outputService.getTextWidgetstorage());
+            return Ok(_outputService.getTextWidgetstorage(await _inputService.getFiles()));
         }
 
 

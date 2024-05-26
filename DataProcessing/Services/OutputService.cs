@@ -9,7 +9,7 @@ public class OutputService
 
     }
 
-    public string getTextWidgetUnused()
+    public string getTextWidgetUnused(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
@@ -17,9 +17,9 @@ public class OutputService
             types = "Number",
             data = new
             {
-                percentage = "+8",
-                value = "407",
-                status = false
+                percentage = "+0",
+                value = files.Count(file => file.PerishedScore != 'A');,
+                status = true
             }
         };
         var jsonData = JsonConvert.SerializeObject(data);
@@ -62,7 +62,7 @@ public class OutputService
         return jsonData;
     }
 
-    public string getTotalMonitored()
+    public string getTotalMonitored(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
@@ -70,8 +70,8 @@ public class OutputService
             types = "Number",
             data = new
             {
-                percentage = "+2",
-                value = "105",
+                percentage = "+0",
+                value = files.Count,
                 status = true
             }
         };
@@ -117,7 +117,7 @@ public class OutputService
         return jsonData;
     }
 
-    public string getTextWidgetbadname()
+    public string getTextWidgetbadname(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
@@ -125,8 +125,8 @@ public class OutputService
             types = "Number",
             data = new
             {
-                percentage = "-12",
-                value = "259",
+                percentage = "+0",
+                value = files.Count(file => file.MisnamedScore != 'A');,
                 status = true
             }
         };
@@ -134,7 +134,7 @@ public class OutputService
         return jsonData;
     }
 
-    public string getTextWidgetduplicate()
+    public string getTextWidgetduplicate(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
@@ -142,16 +142,16 @@ public class OutputService
             types = "Number",
             data = new
             {
-                percentage = "+19",
-                value = "124",
-                status = false
+                percentage = "+0",
+                value = files.Count(file => file.DuplicatedScore != 'A');,
+                status = true
             }
         };
         var jsonData = JsonConvert.SerializeObject(data);
         return jsonData;
     }
 
-    public string getTextWidgetstorage()
+    public string getTextWidgetstorage(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
