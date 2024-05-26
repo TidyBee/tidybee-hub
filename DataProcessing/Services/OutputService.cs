@@ -304,7 +304,7 @@ public class OutputService
             if (file.PerishedScore != 'A')
             {
                 var rule = rules
-                    .Where(r => r.Name == "misnamed")[0];
+                    .Where(r => r.Name == "misnamed").First()!;
 
                 var configurations = new List<Configuration>();
                 dynamic temp = JsonConvert.DeserializeObject(rule.RulesConfig!)!;
@@ -379,7 +379,7 @@ public class OutputService
             }
         }
 
-        var jsonData = JsonConvert.SerializeObject(data);
+        var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
     }
 
