@@ -175,11 +175,19 @@ public class OutputService
 
         foreach (var file in files)
         {
+            var dateTimeOffset = new DateTimeOffset(file.LastModified);
+            var secsSinceEpoch = dateTimeOffset.ToUnixTimeSeconds();
+            var nanosSinceEpoch = (dateTimeOffset.Ticks % TimeSpan.TicksPerSecond) * 100;
+
             var overview = new Overview
             {
                 pretty_path = file.Name,
                 size = file.Size,
-                last_modified = file.LastModified,
+                last_modified = new LastModified
+                {
+                    secs_since_epoch = secsSinceEpoch,
+                    nanos_since_epoch = (int)nanosSinceEpoch
+                },
                 tidy_score = new TidyScore
                 {
                     grade = file.GlobalScore,
@@ -197,6 +205,7 @@ public class OutputService
                     }
                 }
             };
+
             overviews.Add(overview);
         }
 
