@@ -61,9 +61,9 @@ namespace WidgetController.Controllers
 
 
         [HttpGet("getOverviewAll")]
-        public IActionResult GetOverviewAll()
+        public async Task<IActionResult> GetOverviewAll()
         {
-            return Ok(_outputService.getOverviewAll());
+            return Ok(_outputService.getOverviewAll(await _inputService.getFiles()));
         }
 
         [HttpGet("getOverviewMisnamed")]

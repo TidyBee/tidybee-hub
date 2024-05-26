@@ -169,39 +169,38 @@ public class OutputService
         return jsonData;
     }
 
-    public string getOverviewAll()
+    public string getOverviewAll(List<DataProcessing.Models.Input.File> files)
     {
-        var data = new[]
+        List<Overview> overviews = new List<Overview>();
+
+        foreach (var file in files)
         {
-                new Overview
+            var overview = new Overview
+            {
+                pretty_path = file.Name,
+                size = file.Size,
+                last_modified = file.LastModified,
+                tidy_score = new TidyScore
                 {
-                    pretty_path = "src/my_files.rs",
-                    size = 21782,
-                    last_modified = new LastModified
+                    grade = file.GlobalScore,
+                    misnamed = new Misnamed
                     {
-                        secs_since_epoch = 1706651511,
-                        nanos_since_epoch = 396799014
+                        grade = file.MisnamedScore
                     },
-                    tidy_score = new TidyScore
+                    unused = new Unused
                     {
-                        grade = 'B',
-                        misnamed = new Misnamed
-                        {
-                            grade = 'A'
-                        },
-                        unused = new Unused
-                        {
-                            grade = 'A'
-                        },
-                        duplicated = new Duplicated
-                        {
-                            grade = 'B'
-                        }
+                        grade = file.PerishedScore
+                    },
+                    duplicated = new Duplicated
+                    {
+                        grade = file.DuplicatedScore
                     }
                 }
             };
+            overviews.Add(overview);
+        }
 
-        var jsonData = JsonConvert.SerializeObject(data);
+        var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
     }
 
