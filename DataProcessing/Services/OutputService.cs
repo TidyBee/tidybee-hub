@@ -325,7 +325,7 @@ public class OutputService
                             name = inputConfiguration.name!,
                             weight = inputConfiguration.weight!,
                             description = inputConfiguration.description!,
-                            grade = file.DuplicatedScore == 'U' ? 'E' : file.DuplicatedScore
+                            grade = file.DuplicatedScore == 'U' ? 'E' : 'E'
                         };
 
                         if (inputConfiguration.max_occurrences != null)
@@ -374,7 +374,7 @@ public class OutputService
                     },
                     tidy_score = new TidyScore
                     {
-                        grade = file.GlobalScore,
+                        grade = file.GlobalScore == 'U' ? 'E' : file.GlobalScore,
                         duplicated = new Duplicated
                         {
                             grade = file.DuplicatedScore == 'U' ? 'E' : file.DuplicatedScore,
@@ -414,7 +414,7 @@ public class OutputService
                             name = inputConfiguration.name!,
                             weight = inputConfiguration.weight!,
                             description = inputConfiguration.description!,
-                            grade = file.PerishedScore == 'U' ? 'E' : file.PerishedScore
+                            grade = file.PerishedScore == 'U' ? 'E' : 'E'
                         };
 
                         if (inputConfiguration.max_occurrences != null)
@@ -463,7 +463,7 @@ public class OutputService
                     },
                     tidy_score = new TidyScore
                     {
-                        grade = file.GlobalScore,
+                        grade = file.GlobalScore == 'U' ? 'E' : file.PerishedScore,
                         unused = new Unused
                         {
                             grade = file.PerishedScore == 'U' ? 'E' : file.PerishedScore,
