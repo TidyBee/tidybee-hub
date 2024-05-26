@@ -461,9 +461,9 @@ public class OutputService
                     tidy_score = new TidyScore
                     {
                         grade = file.GlobalScore,
-                        unused = new Perished
+                        unused = new Unused
                         {
-                            grade = file.UnusedScore,
+                            grade = file.PerishedScore,
                             configurations = configurations
                         }
                     }
