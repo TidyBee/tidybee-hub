@@ -215,93 +215,11 @@ public class OutputService
 
     public string getOverviewMisnamed(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
     {
-        var data = new[]
-        {
-                new Overview
-                {
-                    pretty_path = "src/my_files.rs",
-                    size = 21782,
-                    last_modified = new LastModified
-                    {
-                        secs_since_epoch = 1706651511,
-                        nanos_since_epoch = 396799014
-                    },
-                    tidy_score = new TidyScore
-                    {
-                        grade = 'A',
-                        misnamed = new Misnamed
-                        {
-                            grade = 'A',
-                            configurations = new List<Configuration>
-                            {
-                                new Configuration
-                                {
-                                    name = "date",
-                                    grade = 'A',
-                                    weight = 3
-                                },
-                                new Configuration
-                                {
-                                    name = "valid separator",
-                                    grade = 'A',
-                                    weight = 1.8
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-        var jsonData = JsonConvert.SerializeObject(data);
-        return jsonData;
-    }
-
-    public string getOverviewDuplicate(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
-    {
-        var data = new[]
-        {
-                new Overview
-                {
-                    pretty_path = "src/my_files.rs",
-                    size = 21782,
-                    last_modified = new LastModified
-                    {
-                        secs_since_epoch = 1706651511,
-                        nanos_since_epoch = 396799014
-                    },
-                    tidy_score = new TidyScore
-                    {
-                        grade = 'B',
-                        duplicated = new Duplicated
-                        {
-                            grade = 'B',
-                            configurations = new List<Configuration>
-                            {
-                                new Configuration
-                                {
-                                    name = "occurrence",
-                                    grade = 'B',
-                                    weight = 1,
-                                    description = "The file need to be unique",
-                                    limitInt = 1
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-        var jsonData = JsonConvert.SerializeObject(data);
-        return jsonData;
-    }
-
-    public string getOverviewUnused(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
-    {
         var overviews = new List<Overview>();
 
         foreach (var file in files)
         {
-            if (file.PerishedScore != 'A')
+            if (file.MisnamedScore != 'A')
             {
                 var rule = rules
                     .Where(r => r.Name == "misnamed").First()!;
@@ -370,6 +288,182 @@ public class OutputService
                         misnamed = new Misnamed
                         {
                             grade = file.MisnamedScore,
+                            configurations = configurations
+                        }
+                    }
+                };
+
+                overviews.Add(overview);
+            }
+        }
+
+        var jsonData = JsonConvert.SerializeObject(data);
+        return jsonData;
+    }
+
+    public string getOverviewDuplicate(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
+    {
+        var overviews = new List<Overview>();
+
+        foreach (var file in files)
+        {
+            if (file.DuplicatedScore != 'A')
+            {
+                var rule = rules
+                    .Where(r => r.Name == "duplicated").First()!;
+
+                var configurations = new List<Configuration>();
+                dynamic temp = JsonConvert.DeserializeObject(rule.RulesConfig!)!;
+
+                if (temp!.regex_rules != null)
+                {
+                    foreach (var inputConfiguration in temp.regex_rules)
+                    {
+                        var configuration = new Configuration
+                        {
+                            name = inputConfiguration.name!,
+                            weight = inputConfiguration.weight!,
+                            description = inputConfiguration.description!
+                        };
+
+                        if (inputConfiguration.max_occurrences != null)
+                        {
+                            configuration.limitInt = inputConfiguration.max_occurrences!;
+                        }
+                        else if (inputConfiguration.expiration_days != null)
+                        {
+                            configuration.limitISO = inputConfiguration.expiration_days!;
+                        }
+                        else
+                        {
+                            configuration.regex = inputConfiguration.regex!;
+                        }
+
+                        configurations.Add(configuration);
+                    }
+                }
+                else
+                {
+                    var configuration = new Configuration
+                    {
+                        name = rule.Name!,
+                        description = rule.Description!,
+                        weight = rule.Weight!,
+                    };
+                    if (temp.max_occurrences != null)
+                    {
+                        configuration.limitInt = temp.max_occurrences!;
+                    }
+                    else if (temp.expiration_days != null)
+                    {
+                        configuration.limitISO = temp.expiration_days!;
+                    }
+                    configurations.Add(configuration);
+                }
+
+                var overview = new Overview
+                {
+                    pretty_path = file.Name,
+                    size = file.Size,
+                    last_modified = new LastModified
+                    {
+                        secs_since_epoch = ((DateTimeOffset)file.LastModified).ToUnixTimeSeconds(),
+                        nanos_since_epoch = file.LastModified.Millisecond * 1000000
+                    },
+                    tidy_score = new TidyScore
+                    {
+                        grade = file.GlobalScore,
+                        duplicated = new Duplicated
+                        {
+                            grade = file.DuplicatedScore,
+                            configurations = configurations
+                        }
+                    }
+                };
+
+                overviews.Add(overview);
+            }
+        }
+
+        var jsonData = JsonConvert.SerializeObject(data);
+        return jsonData;
+    }
+
+    public string getOverviewUnused(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
+    {
+        var overviews = new List<Overview>();
+
+        foreach (var file in files)
+        {
+            if (file.PerishedScore != 'A')
+            {
+                var rule = rules
+                    .Where(r => r.Name == "perished").First()!;
+
+                var configurations = new List<Configuration>();
+                dynamic temp = JsonConvert.DeserializeObject(rule.RulesConfig!)!;
+
+                if (temp!.regex_rules != null)
+                {
+                    foreach (var inputConfiguration in temp.regex_rules)
+                    {
+                        var configuration = new Configuration
+                        {
+                            name = inputConfiguration.name!,
+                            weight = inputConfiguration.weight!,
+                            description = inputConfiguration.description!
+                        };
+
+                        if (inputConfiguration.max_occurrences != null)
+                        {
+                            configuration.limitInt = inputConfiguration.max_occurrences!;
+                        }
+                        else if (inputConfiguration.expiration_days != null)
+                        {
+                            configuration.limitISO = inputConfiguration.expiration_days!;
+                        }
+                        else
+                        {
+                            configuration.regex = inputConfiguration.regex!;
+                        }
+
+                        configurations.Add(configuration);
+                    }
+                }
+                else
+                {
+                    var configuration = new Configuration
+                    {
+                        name = rule.Name!,
+                        description = rule.Description!,
+                        weight = rule.Weight!,
+                    };
+                    if (temp.max_occurrences != null)
+                    {
+                        configuration.limitInt = temp.max_occurrences!;
+                    }
+                    else if (temp.expiration_days != null)
+                    {
+                        configuration.limitISO = temp.expiration_days!;
+                    }
+                    configurations.Add(configuration);
+                }
+
+                var overview = new Overview
+                {
+                    pretty_path = file.Name,
+                    size = file.Size,
+                    last_modified = new LastModified
+                    {
+                        secs_since_epoch = ((DateTimeOffset)file.LastModified).ToUnixTimeSeconds(),
+                        nanos_since_epoch = file.LastModified.Millisecond * 1000000
+                    },
+                    tidy_score = new TidyScore
+                    {
+                        grade = file.GlobalScore,
+                        unused = new Unused
+                        {
+                            grade = file.UnusedScore,
                             configurations = configurations
                         }
                     }
