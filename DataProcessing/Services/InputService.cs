@@ -18,4 +18,10 @@ public class InputService
         return rules;
     }
 
+    public async Task<List<DataProcessing.Models.Input.File>> getFiles()
+    {
+        List<DataProcessing.Models.Input.File> rules = await _context.Files.ToListAsync();
+        return rules;
+    }
+
 }

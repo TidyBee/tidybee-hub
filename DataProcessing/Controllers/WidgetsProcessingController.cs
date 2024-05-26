@@ -24,9 +24,9 @@ namespace WidgetController.Controllers
         }
 
         [HttpGet("getGradeWidget")]
-        public IActionResult getGradeWidget()
+        public async Task<IActionResult> getGradeWidget()
         {
-            return Ok(_outputService.getGradeWidget());
+            return Ok(_outputService.getGradeWidget(await _inputService.getFiles()));
         }
 
         [HttpGet("getTotalMonitored")]
@@ -38,7 +38,7 @@ namespace WidgetController.Controllers
         [HttpGet("getGraphWidget")]
         public IActionResult getGraphWidget()
         {
-            return Ok(_outputService.getGraphWidget());
+            return Ok(_outputService.getGraphWidget(await _inputService.getFiles()));
         }
 
         [HttpGet("getTextWidgetbadname")]

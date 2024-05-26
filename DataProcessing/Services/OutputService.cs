@@ -79,11 +79,39 @@ public class OutputService
         return jsonData;
     }
 
-    public string getGraphWidget()
+    public string getGraphWidget(List<DataProcessing.Models.Input.File> files)
     {
+        List<char> adjustedFiles = files.Select(file => file == 'U' ? 'A' : file).ToList();
+
+        Dictionary<char, int> gradeCounts = new Dictionary<char, int>
+        {
+            { 'A', 0 },
+            { 'B', 0 },
+            { 'C', 0 },
+            { 'D', 0 },
+            { 'E', 0 }
+        };
+
+        foreach (char file in adjustedFiles)
+        {
+            if (gradeCounts.ContainsKey(file))
+            {
+                gradeCounts[file]++;
+            }
+        }
+
+        int totalCount = adjustedFiles.Count;
+
+        double[] gradePercentages = new double[5];
+        char[] grades = new[] { 'A', 'B', 'C', 'D', 'E' };
+        for (int i = 0; i < grades.Length; i++)
+        {
+            char grade = grades[i];
+            gradePercentages[i] = (double)gradeCounts[grade] / totalCount * 100;
+        }
         var data = new
         {
-            series = new[] { 20, 32, 23, 15, 10 }
+            series = gradePercentages
         };
         var jsonData = JsonConvert.SerializeObject(data);
         return jsonData;
