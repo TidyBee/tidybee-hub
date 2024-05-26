@@ -297,7 +297,7 @@ public class OutputService
             }
         }
 
-        var jsonData = JsonConvert.SerializeObject(data);
+        var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
     }
 
@@ -385,7 +385,7 @@ public class OutputService
             }
         }
 
-        var jsonData = JsonConvert.SerializeObject(data);
+        var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
     }
 
@@ -461,7 +461,7 @@ public class OutputService
                     tidy_score = new TidyScore
                     {
                         grade = file.GlobalScore,
-                        unused = new Unused
+                        unused = new Perished
                         {
                             grade = file.UnusedScore,
                             configurations = configurations
