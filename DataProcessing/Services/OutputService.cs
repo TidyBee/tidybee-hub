@@ -35,7 +35,7 @@ public class OutputService
             { 'C', 3 },
             { 'D', 2 },
             { 'E', 1 },
-            { 'U', 5 } // Treat 'U' as 'A'
+            { 'U', 1 } // Treat 'U' as 'E'
         };
 
         Dictionary<int, char> valueToGrade = new Dictionary<int, char>
@@ -81,7 +81,7 @@ public class OutputService
 
     public string getGraphWidget(List<DataProcessing.Models.Input.File> files)
     {
-        List<char> adjustedFiles = files.Select(file => file.GlobalScore == 'U' ? 'A' : file.GlobalScore).ToList();
+        List<char> adjustedFiles = files.Select(file => file.GlobalScore == 'U' ? 'E' : file.GlobalScore).ToList();
 
         Dictionary<char, int> gradeCounts = new Dictionary<char, int>
         {
@@ -190,18 +190,18 @@ public class OutputService
                 },
                 tidy_score = new TidyScore
                 {
-                    grade = file.GlobalScore,
+                    grade = file.GlobalScore == 'U' ? 'E' : file.GlobalScore,
                     misnamed = new Misnamed
                     {
-                        grade = file.MisnamedScore
+                        grade = file.MisnamedScore == 'U' ? 'E' : file.MisnamedScore
                     },
                     unused = new Unused
                     {
-                        grade = file.PerishedScore
+                        grade = file.PerishedScore == 'U' ? 'E' : file.PerishedScore
                     },
                     duplicated = new Duplicated
                     {
-                        grade = file.DuplicatedScore
+                        grade = file.DuplicatedScore == 'U' ? 'E' : file.DuplicatedScore
                     }
                 }
             };
