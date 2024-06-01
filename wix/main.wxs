@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<?define ProjectDir="Path\To\Hub\Repository" ?>
+
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+    <Product Id='*'
+             Name='tidybee-hub'
+             UpgradeCode='d6bf6e84-285a-439a-87c2-e68241e83fbd'
+             Manufacturer='TidyBee'
+             Language='1033'
+             Codepage='1252'
+             Version='1.0.0.0'>
+        <Package InstallerVersion='200' Compressed='yes' InstallScope='perMachine' Platform='x64'/>
+
+        <Media Id='1' Cabinet='product.cab' EmbedCab='yes'/>
+        <Property Id="DISKSPACE" Value="50000" />
+
+        <Directory Id='TARGETDIR' Name='SourceDir'>
+            <Directory Id='ProgramFiles64Folder' Name='PFiles'>
+                <Directory Id="DesktopFolder" Name="Desktop" />
+
+                    <Directory Id='INSTALLDIR' Name='tidybee-hub'>
+
+                        <Component Id="SetEnvVar" Guid="3d02a53d-6e67-48cd-b537-e65d82ca135b" Win64="yes">
+                            <Environment Id="SetDOTNET_ENVIRONMENT"
+                                        Action="set"
+                                        Name="DOTNET_ENVIRONMENT"
+                                        Part="all"
+                                        System="yes"
+                                        Value="Production"
+                                        Permanent="yes" />
+                            <RegistryKey Root="HKLM"
+                                        Key="Software\TidyBee\EnvironmentSettings">
+                                <RegistryValue Type="string"
+                                            Name="DOTNET_ENVIRONMENT"
+                                            Value="Production"
+                                            KeyPath="yes" />
+                            </RegistryKey>
+                        </Component>
+
+                        <Directory Id='Bin' Name='bin'>
+
+                            <Component Id="ServiceStarterExecutable" Guid="620fc2d9-e35a-41f8-bf05-9506b88578c8" Win64="yes">
+                                <File Id="ServiceStarterExe" Source="$(var.ProjectDir)\ServiceStarter\bin\Debug\net7.0\win10-x64\publish\ServiceStarter.exe" KeyPath="yes" />
+                            </Component>
+
+                            <Component Id="ServiceStarterConfig" Guid="7b0e034e-d894-41ff-8087-1d4533e04d1b" Win64="yes">
+                                <File Id="ServiceStarterConfigFile" Source="$(var.ProjectDir)\ServiceStarter\bin\Debug\net7.0\win10-x64\publish\appsettings.json" KeyPath="yes" />
+                            </Component>
+
+                            <Component Id="ServiceStarterShortcut" Guid="98adbb7c-31a5-4bca-9658-5ff40e3df51b" Win64="yes">
+                                <Shortcut Id="DesktopShortcut"
+                                        Directory="DesktopFolder"
+                                        Name="tidybee-hub"
+                                        Target="[INSTALLDIR]Bin\ServiceStarter.exe"
+                                        WorkingDirectory="Bin" />
+                                <RegistryKey Root="HKCU" Key="Software\tidybee-hub\ServiceStarter">
+                                    <RegistryValue Type="integer" Name="installed" Value="1" KeyPath="yes" />
+                                </RegistryKey>
+                            </Component>
+
+                            <Directory Id='ApiGatewayDir' Name='ApiGateway'>
+                                <Component Id='ApiGatewayComponent' Guid='907c34ac-8071-4797-a8ce-3683c4e53a35' Win64="yes">
+                                    <File Id='ApiGatewayExe' Source='$(var.ProjectDir)\ApiGateway\bin\Debug\net7.0\win10-x64\publish\ApiGateway.exe' KeyPath="yes" Checksum='yes'/>
+                                    <File Id='ApiGatewayConfig' Source='$(var.ProjectDir)\ApiGateway\appsettings.json' />
+                                    <ServiceInstall Id="ApiGatewayServiceInstall" 
+                                                    Type="ownProcess" 
+                                                    Vital="yes" 
+                                                    Name="ApiGatewayService" 
+                                                    DisplayName="Tidybee ApiGateway Service" 
+                                                    Description="Handles routing for Tidybee applications." 
+                                                    Start="demand" 
+                                                    Account="LocalSystem" 
+                                                    ErrorControl="ignore" 
+                                                    Interactive="no"/>
+                                    <ServiceControl Id="StartApiGatewayService" 
+                                                    Stop="both" 
+                                                    Remove="uninstall" 
+                                                    Name="ApiGatewayService" 
+                                                    Wait="yes" />
+                                </Component>
+                            </Directory>
+
+                            <Directory Id='AuthDir' Name='Auth'>
+                                <Component Id='AuthComponent' Guid='d216addc-7178-478e-bd68-8b21d3bbfd8f' Win64="yes">
+                                    <File Id='AuthExe' Source='$(var.ProjectDir)\Auth\bin\Debug\net7.0\win10-x64\publish\Auth.exe' KeyPath="yes" Checksum='yes'/>
+                                    <File Id='AuthConfig' Source='$(var.ProjectDir)\Auth\appsettings.json' />
+                                    <File Id='AuthDatabase' Source='$(var.ProjectDir)\Auth\Database\HubDatabase.db' />
+                                    <ServiceInstall Id="AuthServiceInstall" 
+                                                    Type="ownProcess" 
+                                                    Vital="yes" 
+                                                    Name="AuthService" 
+                                                    DisplayName="Tidybee AuthService" 
+                                                    Description="Provides authentication services for Tidybee applications." 
+                                                    Start="demand" 
+                                                    Account="LocalSystem" 
+                                                    ErrorControl="ignore" 
+                                                    Interactive="no"/>
+                                    <ServiceControl Id="StartAuthService" 
+                                                    Stop="both" 
+                                                    Remove="uninstall" 
+                                                    Name="AuthService" 
+                                                    Wait="yes" />
+                                </Component>
+                            </Directory>
+
+                            <Directory Id='DataProcessingDir' Name='DataProcessing'>
+                                <Component Id='DataProcessingComponent' Guid='c74cd5b2-f5da-4491-865d-2d7a5f1f7741' Win64="yes">
+                                    <File Id='DataProcessingExe' Source='$(var.ProjectDir)\DataProcessing\bin\Debug\net7.0\win10-x64\publish\DataProcessing.exe' KeyPath="yes" Checksum='yes'/>
+                                    <File Id='DataProcessingConfig' Source='$(var.ProjectDir)\DataProcessing\appsettings.json' />
+                                    <ServiceInstall Id="DataProcessingServiceInstall" 
+                                                    Type="ownProcess" 
+                                                    Vital="yes" 
+                                                    Name="DataProcessingService" 
+                                                    DisplayName="Tidybee DataProcessing Service" 
+                                                    Description="Processes data for Tidybee applications." 
+                                                    Start="demand" 
+                                                    Account="LocalSystem" 
+                                                    ErrorControl="ignore" 
+                                                    Interactive="no"/>
+                                    <ServiceControl Id="StartDataProcessingService" 
+                                                    Stop="both" 
+                                                    Remove="uninstall" 
+                                                    Name="DataProcessingService" 
+                                                    Wait="yes" />
+                                </Component>
+                            </Directory>
+                        </Directory>
+                    </Directory>
+            </Directory>
+        </Directory>
+
+        <Feature Id='ProductFeature' Title='tidybee-hub' Level='1'>
+            <ComponentRef Id='ApiGatewayComponent' />
+            <ComponentRef Id='AuthComponent' />
+            <ComponentRef Id='DataProcessingComponent' />
+            <ComponentRef Id='ServiceStarterExecutable' />
+            <ComponentRef Id='ServiceStarterShortcut' />
+            <ComponentRef Id='ServiceStarterConfig' />
+            <ComponentRef Id='SetEnvVar' />
+        </Feature>
+        
+    </Product>
+</Wix>
