@@ -29,7 +29,7 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
             {
                 await _context.Files.AddAsync(new Models.File
                 {
-                    Name = update_request.Path,
+                    Name = update_request.Path[0],
                     FileHash = update_request.Hash,
                     Size = (int)update_request.Size,
                     LastModified = DateTime.Parse(update_request.LastModified.ToString().TrimStart('\"').TrimEnd('\"')),
@@ -43,10 +43,22 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
             }
             if (update_request.EventType == FileEventType.Deleted)
             {
-                var file = await _context.Files.Where(f => f.Name == update_request.Path).FirstOrDefaultAsync();
+                var file = await _context.Files.Where(f => f.Name == update_request.Path[0]).FirstOrDefaultAsync();
                 if (file != null)
                 {
                     _context.Files.Remove(file);
+                }
+                else
+                {
+                    _logger.LogWarning($"File {update_request.Path} not found in database");
+                }
+            }
+            if (update_request.EventType == FileEventType.Moved) {
+                var file = await _context.Files.Where(f => f.Name == update_request.Path[0]).FirstOrDefaultAsync();
+                if (file != null)
+                {
+                    file.Name = update_request.Path[1];
+                    file.LastModified = DateTime.Parse(update_request.LastModified.ToString().TrimStart('\"').TrimEnd('\"'));
                 }
                 else
                 {
