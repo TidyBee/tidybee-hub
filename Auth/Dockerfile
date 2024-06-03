@@ -14,5 +14,5 @@ LABEL org.opencontainers.image.source=https://github.com/TidyBee/tidybee-hub
 WORKDIR /app
 COPY --from=publish /app/publish .
 COPY Auth/Database /app/Database
-ENV ASPNETCORE_ENVIRONMENT=Development
+ENV ASPNETCORE_ENVIRONMENT=Container
 ENTRYPOINT ["dotnet", "Auth.dll"]
