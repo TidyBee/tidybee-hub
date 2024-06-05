@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-    paths-ignore: 
+    paths-ignore:
       - .devcontainer/
       - "**.md"
   workflow_dispatch:
@@ -17,14 +17,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        service: [ApiGateway, Auth, DataProcessing]
+        service: [ApiGateway, Auth, DataProcessing, TidyEvents]
         include:
-            - service_name: api-gateway
-              service: ApiGateway
-            - service_name: auth
-              service: Auth
-            - service_name: data-processing
-              service: DataProcessing
+          - service_name: api-gateway
+            service: ApiGateway
+          - service_name: auth
+            service: Auth
+          - service_name: data-processing
+            service: DataProcessing
+          - service_name: events
+            service: TidyEvents
 
     runs-on: ubuntu-latest
 
