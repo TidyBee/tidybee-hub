@@ -18,9 +18,9 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddScoped<AgentRepository>();
 builder.Services.AddScoped<StatusHandlerService>();
 
-var configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
-builder.Configuration.SetBasePath(AppContext.BaseDirectory)
-                      .AddJsonFile(configPath, optional: false, reloadOnChange: true);
+//var configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+//builder.Configuration.SetBasePath(AppContext.BaseDirectory)
+//                      .AddJsonFile(configPath, optional: false, reloadOnChange: true);
 
 var app = builder.Build();
 

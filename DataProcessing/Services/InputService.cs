@@ -1,68 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using DataProcessing.Models;
+using DataProcessing.Models.Input;
+using DataProcessing.Context;
+using Microsoft.EntityFrameworkCore;
 
 public class InputService
 {
-    public InputService()
+    private readonly DatabaseContext _context;
+    public InputService(DatabaseContext context)
     {
-
+        _context = context;
     }
 
-    public List<InputRule> getRules()
+    public async Task<List<DataProcessing.Models.Input.Rule>> getRules()
     {
-        var rules = new List<InputRule>
-                        {
-                            new InputRule
-                            {
-                                name = "misnamed",
-                                configurations = new List<InputConfiguration>
-                                {
-                                    new InputConfiguration
-                                    {
-                                        name = "date",
-                                        weight = 3,
-                                        description = "The name of the file need to have a date",
-                                        regex = @"r'_\d{4}\.'"
-                                    },
-                                    new InputConfiguration
-                                    {
-                                        name = "valid separator",
-                                        weight = 1.8,
-                                        description = "The name of the file need to have 4 separators _",
-                                        regex = @"r'^[^_]*(_[^_]*){3}$'"
-                                    }
-                                }
-                            },
-                            new InputRule
-                            {
-                                name = "duplicate",
-                                configurations = new List<InputConfiguration>
-                                {
-                                    new InputConfiguration
-                                    {
-                                        name = "occurrence",
-                                        weight = 1,
-                                        description = "The file need to be unique",
-                                        limitInt = 1
-                                    }
-                                }
-                            },
-                            new InputRule
-                            {
-                                name = "unused",
-                                configurations = new List<InputConfiguration>
-                                {
-                                    new InputConfiguration
-                                    {
-                                        name = "perished",
-                                        weight = 1,
-                                        description = "The file need to be recent enough",
-                                        limitISO = "2024-04-12T00:00:00Z"
-                                    }
-                                }
-                            }
-                        };
+        List<DataProcessing.Models.Input.Rule> rules = await _context.Rules.ToListAsync();
+        return rules;
+    }
+
+    public async Task<List<DataProcessing.Models.Input.File>> getFiles()
+    {
+        List<DataProcessing.Models.Input.File> rules = await _context.Files.ToListAsync();
         return rules;
     }
 

@@ -14,7 +14,8 @@ if (WindowsServiceHelpers.IsWindowsService())
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
-    policy  => {
+    policy =>
+    {
         policy.WithOrigins(
             "http://localhost:8080"
         );
@@ -30,9 +31,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
-builder.Configuration.SetBasePath(AppContext.BaseDirectory)
-                      .AddJsonFile(configPath, optional: false, reloadOnChange: true);
+//var configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+//builder.Configuration.SetBasePath(AppContext.BaseDirectory)
+//                      .AddJsonFile(configPath, optional: false, reloadOnChange: true);
 
 var configuration = builder.Configuration;
 
