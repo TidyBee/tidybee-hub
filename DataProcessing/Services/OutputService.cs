@@ -9,7 +9,7 @@ public class OutputService
 
     }
 
-    public string getTextWidgetUnused()
+    public string getTextWidgetUnused(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
@@ -17,26 +17,52 @@ public class OutputService
             types = "Number",
             data = new
             {
-                percentage = "+8",
-                value = "407",
-                status = false
+                percentage = "+0",
+                value = files.Count(file => file.PerishedScore != 'A'),
+                status = true
             }
         };
         var jsonData = JsonConvert.SerializeObject(data);
         return jsonData;
     }
 
-    public string getGradeWidget()
+    public string getGradeWidget(List<DataProcessing.Models.Input.File> files)
     {
+        Dictionary<char, int> gradeToValue = new Dictionary<char, int>
+        {
+            { 'A', 5 },
+            { 'B', 4 },
+            { 'C', 3 },
+            { 'D', 2 },
+            { 'E', 1 },
+            { 'U', 1 } // Treat 'U' as 'E'
+        };
+
+        Dictionary<int, char> valueToGrade = new Dictionary<int, char>
+        {
+            { 5, 'A' },
+            { 4, 'B' },
+            { 3, 'C' },
+            { 2, 'D' },
+            { 1, 'E' }
+        };
+
+        List<int> numericalScores = files.Select(file => gradeToValue[file.GlobalScore]).ToList();
+
+        double averageValue = numericalScores.Average();
+
+        int roundedAverageValue = (int)Math.Round(averageValue);
+
+
         var data = new
         {
-            grade = "B"
+            grade = valueToGrade[roundedAverageValue]
         };
         var jsonData = JsonConvert.SerializeObject(data);
         return jsonData;
     }
 
-    public string getTotalMonitored()
+    public string getTotalMonitored(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
@@ -44,8 +70,8 @@ public class OutputService
             types = "Number",
             data = new
             {
-                percentage = "+2",
-                value = "105",
+                percentage = "+0",
+                value = files.Count,
                 status = true
             }
         };
@@ -53,17 +79,45 @@ public class OutputService
         return jsonData;
     }
 
-    public string getGraphWidget()
+    public string getGraphWidget(List<DataProcessing.Models.Input.File> files)
     {
+        List<char> adjustedFiles = files.Select(file => file.GlobalScore == 'U' ? 'E' : file.GlobalScore).ToList();
+
+        Dictionary<char, int> gradeCounts = new Dictionary<char, int>
+        {
+            { 'A', 0 },
+            { 'B', 0 },
+            { 'C', 0 },
+            { 'D', 0 },
+            { 'E', 0 }
+        };
+
+        foreach (char file in adjustedFiles)
+        {
+            if (gradeCounts.ContainsKey(file))
+            {
+                gradeCounts[file]++;
+            }
+        }
+
+        int totalCount = adjustedFiles.Count;
+
+        double[] gradePercentages = new double[5];
+        char[] grades = new[] { 'A', 'B', 'C', 'D', 'E' };
+        for (int i = 0; i < grades.Length; i++)
+        {
+            char grade = grades[i];
+            gradePercentages[i] = (double)gradeCounts[grade] / totalCount * 100;
+        }
         var data = new
         {
-            series = new[] { 20, 32, 23, 15, 10 }
+            series = gradePercentages
         };
         var jsonData = JsonConvert.SerializeObject(data);
         return jsonData;
     }
 
-    public string getTextWidgetbadname()
+    public string getTextWidgetbadname(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
@@ -71,8 +125,8 @@ public class OutputService
             types = "Number",
             data = new
             {
-                percentage = "-12",
-                value = "259",
+                percentage = "+0",
+                value = files.Count(file => file.MisnamedScore != 'A'),
                 status = true
             }
         };
@@ -80,7 +134,7 @@ public class OutputService
         return jsonData;
     }
 
-    public string getTextWidgetduplicate()
+    public string getTextWidgetduplicate(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
@@ -88,16 +142,16 @@ public class OutputService
             types = "Number",
             data = new
             {
-                percentage = "+19",
-                value = "124",
-                status = false
+                percentage = "+0",
+                value = files.Count(file => file.DuplicatedScore != 'A'),
+                status = true
             }
         };
         var jsonData = JsonConvert.SerializeObject(data);
         return jsonData;
     }
 
-    public string getTextWidgetstorage()
+    public string getTextWidgetstorage(List<DataProcessing.Models.Input.File> files)
     {
         var data = new
         {
@@ -115,199 +169,377 @@ public class OutputService
         return jsonData;
     }
 
-    public string getOverviewAll()
+    public string getOverviewAll(List<DataProcessing.Models.Input.File> files)
     {
-        var data = new[]
+        List<Overview> overviews = new List<Overview>();
+
+        foreach (var file in files)
         {
-                new Overview
+            var dateTimeOffset = new DateTimeOffset(file.LastModified);
+            var secsSinceEpoch = dateTimeOffset.ToUnixTimeSeconds();
+            var nanosSinceEpoch = (dateTimeOffset.Ticks % TimeSpan.TicksPerSecond) * 100;
+
+            var overview = new Overview
+            {
+                pretty_path = file.Name,
+                size = file.Size,
+                last_modified = new LastModified
                 {
-                    pretty_path = "src/my_files.rs",
-                    size = 21782,
+                    secs_since_epoch = secsSinceEpoch,
+                    nanos_since_epoch = (int)nanosSinceEpoch
+                },
+                tidy_score = new TidyScore
+                {
+                    grade = file.GlobalScore == 'U' ? 'E' : file.GlobalScore,
+                    misnamed = new Misnamed
+                    {
+                        grade = file.MisnamedScore == 'U' ? 'E' : file.MisnamedScore
+                    },
+                    unused = new Unused
+                    {
+                        grade = file.PerishedScore == 'U' ? 'E' : file.PerishedScore
+                    },
+                    duplicated = new Duplicated
+                    {
+                        grade = file.DuplicatedScore == 'U' ? 'E' : file.DuplicatedScore
+                    }
+                }
+            };
+
+            overviews.Add(overview);
+        }
+
+        var jsonData = JsonConvert.SerializeObject(overviews);
+        return jsonData;
+    }
+
+    public string getOverviewMisnamed(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
+    {
+        var overviews = new List<Overview>();
+
+        foreach (var file in files)
+        {
+            if (file.MisnamedScore != 'A')
+            {
+                var rule = rules
+                    .Where(r => r.Name == "misnamed").First()!;
+
+                var configurations = new List<Configuration>();
+                dynamic temp = JsonConvert.DeserializeObject(rule.RulesConfig!)!;
+
+                if (temp!.regex_rules != null)
+                {
+                    foreach (var inputConfiguration in temp.regex_rules)
+                    {
+                        var configuration = new Configuration
+                        {
+                            name = inputConfiguration.name!,
+                            weight = inputConfiguration.weight!,
+                            description = inputConfiguration.description!,
+                            grade = file.MisnamedScore == 'U' ? 'E' : file.MisnamedScore
+                        };
+
+                        if (inputConfiguration.max_occurrences != null)
+                        {
+                            configuration.limitInt = inputConfiguration.max_occurrences!;
+                        }
+                        else if (inputConfiguration.expiration_days != null)
+                        {
+                            configuration.limitISO = inputConfiguration.expiration_days!;
+                        }
+                        else
+                        {
+                            configuration.regex = inputConfiguration.regex!;
+                        }
+
+                        configurations.Add(configuration);
+                    }
+                }
+                else
+                {
+                    var configuration = new Configuration
+                    {
+                        name = rule.Name!,
+                        description = rule.Description!,
+                        weight = rule.Weight!,
+                    };
+                    if (temp.max_occurrences != null)
+                    {
+                        configuration.limitInt = temp.max_occurrences!;
+                    }
+                    else if (temp.expiration_days != null)
+                    {
+                        configuration.limitISO = temp.expiration_days!;
+                    }
+                    configurations.Add(configuration);
+                }
+
+                var overview = new Overview
+                {
+                    pretty_path = file.Name,
+                    size = file.Size,
                     last_modified = new LastModified
                     {
-                        secs_since_epoch = 1706651511,
-                        nanos_since_epoch = 396799014
+                        secs_since_epoch = ((DateTimeOffset)file.LastModified).ToUnixTimeSeconds(),
+                        nanos_since_epoch = file.LastModified.Millisecond * 1000000
                     },
                     tidy_score = new TidyScore
                     {
-                        grade = 'B',
+                        grade = file.GlobalScore == 'U' ? 'E' : file.GlobalScore,
                         misnamed = new Misnamed
                         {
-                            grade = 'A'
-                        },
-                        unused = new Unused
+                            grade = file.MisnamedScore == 'U' ? 'E' : file.MisnamedScore,
+                            configurations = configurations
+                        }
+                    }
+                };
+
+                overviews.Add(overview);
+            }
+        }
+
+        var jsonData = JsonConvert.SerializeObject(overviews);
+        return jsonData;
+    }
+
+    public string getOverviewDuplicate(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
+    {
+        var overviews = new List<Overview>();
+
+        foreach (var file in files)
+        {
+            if (file.DuplicatedScore != 'A')
+            {
+                var rule = rules
+                    .Where(r => r.Name == "duplicated").First()!;
+
+                var configurations = new List<Configuration>();
+                dynamic temp = JsonConvert.DeserializeObject(rule.RulesConfig!)!;
+
+                if (temp!.regex_rules != null)
+                {
+                    foreach (var inputConfiguration in temp.regex_rules)
+                    {
+                        var configuration = new Configuration
                         {
-                            grade = 'A'
-                        },
+                            name = inputConfiguration.name!,
+                            weight = inputConfiguration.weight!,
+                            description = inputConfiguration.description!,
+                            grade = file.DuplicatedScore == 'U' ? 'E' : 'E'
+                        };
+
+                        if (inputConfiguration.max_occurrences != null)
+                        {
+                            configuration.limitInt = inputConfiguration.max_occurrences!;
+                        }
+                        else if (inputConfiguration.expiration_days != null)
+                        {
+                            configuration.limitISO = inputConfiguration.expiration_days!;
+                        }
+                        else
+                        {
+                            configuration.regex = inputConfiguration.regex!;
+                        }
+
+                        configurations.Add(configuration);
+                    }
+                }
+                else
+                {
+                    var configuration = new Configuration
+                    {
+                        name = rule.Name!,
+                        description = rule.Description!,
+                        weight = rule.Weight!,
+                    };
+                    if (temp.max_occurrences != null)
+                    {
+                        configuration.limitInt = temp.max_occurrences!;
+                    }
+                    else if (temp.expiration_days != null)
+                    {
+                        configuration.limitISO = temp.expiration_days!;
+                    }
+                    configurations.Add(configuration);
+                }
+
+                var overview = new Overview
+                {
+                    pretty_path = file.Name,
+                    size = file.Size,
+                    last_modified = new LastModified
+                    {
+                        secs_since_epoch = ((DateTimeOffset)file.LastModified).ToUnixTimeSeconds(),
+                        nanos_since_epoch = file.LastModified.Millisecond * 1000000
+                    },
+                    tidy_score = new TidyScore
+                    {
+                        grade = file.GlobalScore == 'U' ? 'E' : file.GlobalScore,
                         duplicated = new Duplicated
                         {
-                            grade = 'B'
+                            grade = file.DuplicatedScore == 'U' ? 'E' : file.DuplicatedScore,
+                            configurations = configurations
                         }
                     }
-                }
-            };
+                };
 
-        var jsonData = JsonConvert.SerializeObject(data);
+                overviews.Add(overview);
+            }
+        }
+
+        var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
     }
 
-    public string getOverviewMisnamed()
+    public string getOverviewUnused(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
     {
-        var data = new[]
+        var overviews = new List<Overview>();
+
+        foreach (var file in files)
         {
-                new Overview
+            if (file.PerishedScore != 'A')
+            {
+                var rule = rules
+                    .Where(r => r.Name == "perished").First()!;
+
+                var configurations = new List<Configuration>();
+                dynamic temp = JsonConvert.DeserializeObject(rule.RulesConfig!)!;
+
+                if (temp!.regex_rules != null)
                 {
-                    pretty_path = "src/my_files.rs",
-                    size = 21782,
-                    last_modified = new LastModified
+                    foreach (var inputConfiguration in temp.regex_rules)
                     {
-                        secs_since_epoch = 1706651511,
-                        nanos_since_epoch = 396799014
-                    },
-                    tidy_score = new TidyScore
-                    {
-                        grade = 'A',
-                        misnamed = new Misnamed
+                        var configuration = new Configuration
                         {
-                            grade = 'A',
-                            configurations = new List<Configuration>
-                            {
-                                new Configuration
-                                {
-                                    name = "date",
-                                    grade = 'A',
-                                    weight = 3
-                                },
-                                new Configuration
-                                {
-                                    name = "valid separator",
-                                    grade = 'A',
-                                    weight = 1.8
-                                }
-                            }
-                        }
-                    }
-                }
-            };
+                            name = inputConfiguration.name!,
+                            weight = inputConfiguration.weight!,
+                            description = inputConfiguration.description!,
+                            grade = file.PerishedScore == 'U' ? 'E' : 'E'
+                        };
 
-        var jsonData = JsonConvert.SerializeObject(data);
-        return jsonData;
-    }
-
-    public string getOverviewDuplicate()
-    {
-        var data = new[]
-        {
-                new Overview
-                {
-                    pretty_path = "src/my_files.rs",
-                    size = 21782,
-                    last_modified = new LastModified
-                    {
-                        secs_since_epoch = 1706651511,
-                        nanos_since_epoch = 396799014
-                    },
-                    tidy_score = new TidyScore
-                    {
-                        grade = 'B',
-                        duplicated = new Duplicated
+                        if (inputConfiguration.max_occurrences != null)
                         {
-                            grade = 'B',
-                            configurations = new List<Configuration>
-                            {
-                                new Configuration
-                                {
-                                    name = "occurrence",
-                                    grade = 'B',
-                                    weight = 1,
-                                    description = "The file need to be unique",
-                                    limitInt = 1
-                                }
-                            }
+                            configuration.limitInt = inputConfiguration.max_occurrences!;
                         }
+                        else if (inputConfiguration.expiration_days != null)
+                        {
+                            configuration.limitISO = inputConfiguration.expiration_days!;
+                        }
+                        else
+                        {
+                            configuration.regex = inputConfiguration.regex!;
+                        }
+
+                        configurations.Add(configuration);
                     }
                 }
-            };
-
-        var jsonData = JsonConvert.SerializeObject(data);
-        return jsonData;
-    }
-
-    public string getOverviewUnused()
-    {
-        var data = new[]
-        {
-                new Overview
+                else
                 {
-                    pretty_path = "src/my_files.rs",
-                    size = 21782,
+                    var configuration = new Configuration
+                    {
+                        name = rule.Name!,
+                        description = rule.Description!,
+                        weight = rule.Weight!,
+                    };
+                    if (temp.max_occurrences != null)
+                    {
+                        configuration.limitInt = temp.max_occurrences!;
+                    }
+                    else if (temp.expiration_days != null)
+                    {
+                        configuration.limitISO = temp.expiration_days!;
+                    }
+                    configurations.Add(configuration);
+                }
+
+                var overview = new Overview
+                {
+                    pretty_path = file.Name,
+                    size = file.Size,
                     last_modified = new LastModified
                     {
-                        secs_since_epoch = 1706651511,
-                        nanos_since_epoch = 396799014
+                        secs_since_epoch = ((DateTimeOffset)file.LastModified).ToUnixTimeSeconds(),
+                        nanos_since_epoch = file.LastModified.Millisecond * 1000000
                     },
                     tidy_score = new TidyScore
                     {
-                        grade = 'C',
+                        grade = file.GlobalScore == 'U' ? 'E' : file.PerishedScore,
                         unused = new Unused
                         {
-                            grade = 'C',
-                            configurations = new List<Configuration>
-                            {
-                                new Configuration
-                                {
-                                    name = "perished",
-                                    grade = 'C',
-                                    weight = 1,
-                                    description = "The file need to be recent enough",
-                                    limitISO = "2024-04-12T00:00:00Z"
-                                }
-                            }
+                            grade = file.PerishedScore == 'U' ? 'E' : file.PerishedScore,
+                            configurations = configurations
                         }
                     }
-                }
-            };
+                };
 
-        var jsonData = JsonConvert.SerializeObject(data);
+                overviews.Add(overview);
+            }
+        }
+
+        var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
     }
 
-    public string getTidyRules(List<InputRule> rules)
+    public string getTidyRules(List<DataProcessing.Models.Input.Rule> rules)
     {
         var tidyRules = new List<Rule>();
 
         foreach (var inputRule in rules)
         {
             var configurations = new List<Configuration>();
+            dynamic temp = JsonConvert.DeserializeObject(inputRule.RulesConfig!)!;
 
-            foreach (var inputConfiguration in inputRule.configurations!)
+            if (temp!.regex_rules != null)
+            {
+                foreach (var inputConfiguration in temp.regex_rules)
+                {
+                    var configuration = new Configuration
+                    {
+                        name = inputConfiguration.name!,
+                        weight = inputConfiguration.weight!,
+                        description = inputConfiguration.description!
+                    };
+
+                    if (inputConfiguration.max_occurrences != null)
+                    {
+                        configuration.limitInt = inputConfiguration.max_occurrences!;
+                    }
+                    else if (inputConfiguration.expiration_days != null)
+                    {
+                        configuration.limitISO = inputConfiguration.expiration_days!;
+                    }
+                    else
+                    {
+                        configuration.regex = inputConfiguration.regex!;
+                    }
+
+                    configurations.Add(configuration);
+                }
+            }
+            else
             {
                 var configuration = new Configuration
                 {
-                    name = inputConfiguration.name!,
-                    weight = inputConfiguration.weight ?? 1,
-                    description = inputConfiguration.description!
+                    name = inputRule.Name!,
+                    description = inputRule.Description!,
+                    weight = inputRule.Weight!,
                 };
-
-                if (inputConfiguration.limitInt != null)
+                if (temp.max_occurrences != null)
                 {
-                    configuration.limitInt = inputConfiguration.limitInt!;
+                    configuration.limitInt = temp.max_occurrences!;
                 }
-                else if (inputConfiguration.limitISO != null)
+                else if (temp.expiration_days != null)
                 {
-                    configuration.limitISO = inputConfiguration.limitISO!;
+                    configuration.limitISO = temp.expiration_days!;
                 }
-                else
-                {
-                    configuration.regex = inputConfiguration.regex!;
-                }
-
                 configurations.Add(configuration);
             }
 
-            var rule = new Rule
+            var rule = new DataProcessing.Models.Rule
             {
-                name = inputRule.name!,
+                name = inputRule.Name!,
+                description = inputRule.Description!,
+                weight = inputRule.Weight!,
                 configurations = configurations
             };
 

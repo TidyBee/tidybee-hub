@@ -1,14 +1,21 @@
 using AspNetCore.Proxy;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Hosting.WindowsServices;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (WindowsServiceHelpers.IsWindowsService())
+{
+    builder.Host.UseWindowsService();
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
-    policy  => {
+    policy =>
+    {
         policy.WithOrigins(
             "http://localhost:8080"
         );
@@ -24,17 +31,19 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//var configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+//builder.Configuration.SetBasePath(AppContext.BaseDirectory)
+//                      .AddJsonFile(configPath, optional: false, reloadOnChange: true);
+
 var configuration = builder.Configuration;
 
 try
 {
-    var aothServiceUrl = configuration.GetValue<string>("AothServiceUrl");
-    var dataProcessingServiceUrl = configuration.GetValue<string>("DataProcessingServiceUrl");
-    if (aothServiceUrl == null || dataProcessingServiceUrl == null)
-        throw new Exception();
+    var authServiceUrl = configuration.GetValue<string>("AothServiceUrl") ?? "http://localhost:7002";
+    var dataProcessingServiceUrl = configuration.GetValue<string>("DataProcessingServiceUrl") ?? "http://localhost:7003";
     builder.Services.AddHttpClient("AuthServiceClient", client =>
     {
-        client.BaseAddress = new Uri(aothServiceUrl);
+        client.BaseAddress = new Uri(authServiceUrl);
     });
 
     builder.Services.AddHttpClient("DataProcessingServiceClient", client =>
@@ -42,9 +51,10 @@ try
         client.BaseAddress = new Uri(dataProcessingServiceUrl);
     });
 }
-catch (Exception)
+catch (Exception ex)
 {
-    throw new ArgumentNullException("Services Urls are not set in configuration.");
+    Console.WriteLine("Error loading configuration: " + ex.Message);
+    throw;
 }
 
 
