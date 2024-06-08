@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
 
 public class WidgetHub : Hub
 {
@@ -13,73 +12,73 @@ public class WidgetHub : Hub
 
     public async Task SendTextWidgetunused()
     {
-        var data = _outputService.getTextWidgetUnused();
+        var data = _outputService.getTextWidgetUnused(await _inputService.getFiles());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendGradeWidget()
     {
-        var data = _outputService.getGradeWidget();
+        var data = _outputService.getGradeWidget(await _inputService.getFiles());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendTotalMonitored()
     {
-        var data = _outputService.getTotalMonitored();
+        var data = _outputService.getTotalMonitored(await _inputService.getFiles());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendGraphWidget()
     {
-        var data = _outputService.getGraphWidget();
+        var data = _outputService.getGraphWidget(await _inputService.getFiles());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendTextWidgetbadname()
     {
-        var data = _outputService.getTextWidgetbadname();
+        var data = _outputService.getTextWidgetbadname(await _inputService.getFiles());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendTextWidgetduplicate()
     {
-        var data = _outputService.getTextWidgetduplicate();
+        var data = _outputService.getTextWidgetduplicate(await _inputService.getFiles());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendTextWidgetstorage()
     {
-        var data = _outputService.getTextWidgetstorage();
+        var data = _outputService.getTextWidgetstorage(await _inputService.getFiles());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendOverviewAll()
     {
-        var data = _outputService.getOverviewAll();
+        var data = _outputService.getOverviewAll(await _inputService.getFiles());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendOverviewMisnamed()
     {
-        var data = _outputService.getOverviewMisnamed();
+        var data = _outputService.getOverviewMisnamed(await _inputService.getFiles(), await _inputService.getRules());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendOverviewDuplicate()
     {
-        var data = _outputService.getOverviewDuplicate();
+        var data = _outputService.getOverviewDuplicate(await _inputService.getFiles(), await _inputService.getRules());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendOverviewUnused()
     {
-        var data = _outputService.getOverviewUnused();
+        var data = _outputService.getOverviewUnused(await _inputService.getFiles(), await _inputService.getRules());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
     public async Task SendTidyRules()
     {
-        var data = _inputService.getRules();
+        var data = _outputService.getTidyRules(await _inputService.getRules());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 }
