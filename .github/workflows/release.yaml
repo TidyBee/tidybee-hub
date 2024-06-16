@@ -62,7 +62,7 @@ jobs:
           name: ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact
 
       - name: Rename artifact
-        run: mv ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}-artifact
+        run: mv $(echo ${{ github.repository}} | sed 's/tidybee//')/${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}-artifact
 
       - name: Update release
         env:
