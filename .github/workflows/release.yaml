@@ -12,6 +12,7 @@ jobs:
     strategy:
         matrix:
             os: [ubuntu-latest, windows-latest, macos-latest]
+            project: ["ApiGateway", "Auth", "DataProcessing", "TidyEvents"]
             include:
               - os: ubuntu-latest
                 dotnet-rid: linux-x64
@@ -36,7 +37,7 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore deps
-        run: dotnet publish -c Release -o ./publish -r ${{ matrix.dotnet-rid }} --self-contained -p:PublishReadyToRun=true
+        run: dotnet publish ${{ matrix.project }}/${{ matrix.project }}.csproj -c Release -o ./publish/${{ matrix.project }}  -r ${{ matrix.dotnet-rid }} -p:PublishSingleFile=true --self-contained
 
       - name: Debug publish folder
         shell: bash
