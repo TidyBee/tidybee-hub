@@ -44,6 +44,7 @@ jobs:
         run: ls -lRa ./publish
 
       - name: Archive publish folder
+        shell: bash
         run: |
           zip -r ${{ matrix.project}}.zip ./publish/${{ matrix.project }}
 
