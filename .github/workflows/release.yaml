@@ -12,19 +12,23 @@ jobs:
         matrix:
             os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-    - uses: actions/checkout@v3
-    - name: Setup .NET
-    - uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 8.0.x
-    - uses: actions/cache@v3
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
-    - name: Restore deps
-      run: dotnet publish -c Release -o ./publish
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Debug publish folder
-      run: ls -lRa ./publish
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore deps
+        run: dotnet publish -c Release -o ./publish
+
+      - name: Debug publish folder
+        run: ls -lRa ./publish
