@@ -42,3 +42,17 @@ jobs:
       - name: Debug publish folder
         shell: bash
         run: ls -lRa ./publish
+
+
+      - name: Archive all folders
+        run: |
+          for d in ./publish/*; do
+            echo "Archiving $d"
+            zip -r $d.zip $d
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.project }}.zip
+      
