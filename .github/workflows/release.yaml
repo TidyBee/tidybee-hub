@@ -11,6 +11,13 @@ jobs:
     strategy:
         matrix:
             os: [ubuntu-latest, windows-latest, macos-latest]
+            include:
+              - os: ubuntu-latest
+                dotnet-rid: linux-x64
+              - os: windows-latest
+                dotnet-rid: win-x64
+              - os: macos-latest
+                dotnet-rid: osx-x64
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,7 +35,8 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore deps
-        run: dotnet publish -c Release -o ./publish
+        run: dotnet publish -c Release -o ./publish -r ${{ matrix.dotnet-rid }}
 
       - name: Debug publish folder
+        shell: bash
         run: ls -lRa ./publish
