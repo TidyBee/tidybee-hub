@@ -36,7 +36,7 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore deps
-        run: dotnet publish -c Release -o ./publish -r ${{ matrix.dotnet-rid }} --self-contained
+        run: dotnet publish -c Release -o ./publish -r ${{ matrix.dotnet-rid }} --self-contained -p:PublishReadyToRun=true
 
       - name: Debug publish folder
         shell: bash
