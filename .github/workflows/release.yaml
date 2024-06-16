@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "v*"
-  workflow_dispatch:
 
 jobs:
   build:
@@ -48,3 +47,26 @@ jobs:
         with:
           path: ./publish/${{ matrix.project}}
           name: ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: ["ApiGateway", "Auth", "DataProcessing", "TidyEvents"]
+        dotnet-rid: [linux-x64, win-x64, osx-x64]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact
+
+      - name: Rename artifact
+        run: mv ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}-artifact
+
+      - name: Update release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release update ${{ github.ref }} \
+            ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}-artifact
