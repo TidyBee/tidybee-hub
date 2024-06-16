@@ -43,13 +43,8 @@ jobs:
         shell: bash
         run: ls -lRa ./publish
 
-      - name: Archive publish folder
-        shell: bash
-        run: |
-          zip -r ${{ matrix.project}}.zip ./publish/${{ matrix.project }}
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          path: ${{ matrix.project}}.zip
+          path: ./publish/${{ matrix.project}}
           name: ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact
