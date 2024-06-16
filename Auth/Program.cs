@@ -1,10 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using auth.Context;
 using auth.Repository;
+using Microsoft.Extensions.Hosting.WindowsServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+if (WindowsServiceHelpers.IsWindowsService())
+{
+    builder.Host.UseWindowsService();
+}
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -13,9 +18,12 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddScoped<AgentRepository>();
 builder.Services.AddScoped<StatusHandlerService>();
 
+//var configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
+//builder.Configuration.SetBasePath(AppContext.BaseDirectory)
+//                      .AddJsonFile(configPath, optional: false, reloadOnChange: true);
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();
 
