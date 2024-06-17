@@ -14,6 +14,7 @@ env:
 
 jobs:
   build-and-push-matrix:
+    if: github.repository == 'tidybee/tidybee-agent' && github.ref == 'refs/heads/main'
     strategy:
       fail-fast: false
       matrix:

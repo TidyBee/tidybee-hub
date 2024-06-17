@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+        matrix:
+            os: [ubuntu-latest, windows-latest, macos-latest]
+            project: ["ApiGateway", "Auth", "DataProcessing", "TidyEvents"]
+            include:
+              - os: ubuntu-latest
+                dotnet-rid: linux-x64
+              - os: windows-latest
+                dotnet-rid: win-x64
+              - os: macos-latest
+                dotnet-rid: osx-x64
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore deps
+        run: dotnet publish ${{ matrix.project }}/${{ matrix.project }}.csproj -c Release -o ./publish/${{ matrix.project }}  -r ${{ matrix.dotnet-rid }} -p:PublishSingleFile=true --self-contained
+
+      - name: Debug publish folder
+        shell: bash
+        run: ls -lRa ./publish
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: ./publish/${{ matrix.project}}
+          name: ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: ["ApiGateway", "Auth", "DataProcessing", "TidyEvents"]
+        dotnet-rid: [linux-x64, win-x64, osx-x64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact
+          path: ${{ matrix.project}}-${{ matrix.dotnet-rid }}
+
+      - name: Rename artifacts with current version
+        shell: bash
+        run: |
+          mv ${{ matrix.project}}-${{ matrix.dotnet-rid }} ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}
+
+      - name: Debug artifacts
+        shell: bash
+        run: |
+          echo $(pwd)
+          ls -lRa .
+
+      - name: Create archives (linux/macos)
+        shell: bash
+        run: zip -r ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}.zip ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}
+
+      - name: Create archives (windows)
+        shell: bash
+        run: 7z a ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}.zip ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}
+
+      - name: Update release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.ref_name }} \
+           ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}.zip
