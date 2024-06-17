@@ -62,18 +62,26 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact
-          path: ${{ matrix.project}}-${{ matrix.dotnet-rid }}.tar
+          path: ${{ matrix.project}}-${{ matrix.dotnet-rid }}
 
       - name: Rename artifacts with current version
         shell: bash
         run: |
-          mv ${{ matrix.project}}-${{ matrix.dotnet-rid }}.tar ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}.tar
+          mv ${{ matrix.project}}-${{ matrix.dotnet-rid }} ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}
 
       - name: Debug artifacts
         shell: bash
         run: |
           echo $(pwd)
           ls -lRa .
+
+      - name: Create archives (linux/macos)
+        shell: bash
+        run: zip -r ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}.zip ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}
+
+      - name: Create archives (windows)
+        shell: bash
+        run: 7z a ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}.zip ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}
 
       - name: Update release
         env:
