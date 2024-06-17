@@ -64,6 +64,12 @@ jobs:
       - name: Rename artifact
         run: mv $(echo ${{ github.repository}} | sed 's/TidyBee\///')/${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}-artifact
 
+      - name: Debug artifacts
+        shell: bash
+        run: |
+          echo $(pwd)
+          ls -lRa .
+
       - name: Update release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
