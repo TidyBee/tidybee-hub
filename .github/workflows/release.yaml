@@ -65,7 +65,7 @@ jobs:
       - name: Rename artifacts with current version
         shell: bash
         run: |
-          mv ${{ matrix.project}}-${{ matrix.dotnet-rid }}.tar ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ github.ref }}.tar
+          mv ${{ matrix.project}}-${{ matrix.dotnet-rid }}.tar ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}.tar
 
       - name: Debug artifacts
         shell: bash
