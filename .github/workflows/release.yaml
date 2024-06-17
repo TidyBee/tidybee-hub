@@ -60,6 +60,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact
+          path: $(echo ${{ github.repository}} | sed 's/TidyBee\///')/${{ matrix.project}}-${{ matrix.dotnet-rid }}.tar
 
       - name: Debug artifacts
         shell: bash
@@ -67,13 +68,9 @@ jobs:
           echo $(pwd)
           ls -lRa .
 
-      - name: Rename artifact
-        run: mv $(echo ${{ github.repository}} | sed 's/TidyBee\///')/${{ matrix.project}}-${{ matrix.dotnet-rid }}-artifact ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}-artifact
-
-
       - name: Update release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release update ${{ github.ref }} \
-            ${{ matrix.project}}-$(echo ${{ github.ref_name }} | sed 's/v//; s/\./-/g')-${{ matrix.dotnet-rid }}-artifact
+            $(echo ${{ github.repository}} | sed 's/TidyBee\///')/${{ matrix.project}}-${{ matrix.dotnet-rid }}.tar
