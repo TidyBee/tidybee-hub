@@ -3,6 +3,8 @@ using TidyEvents.Context;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using System.Runtime.CompilerServices;
+using System.Threading;
+
 
 namespace TidyEvents.Services;
 
@@ -69,6 +71,9 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
             await _context.SaveChangesAsync();
             _context.ChangeTracker.Clear();
         }
+
+        Thread.Sleep(2000);
+
 
         var stored_procedures_raw = new List<string>
         {
