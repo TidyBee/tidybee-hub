@@ -19,20 +19,6 @@ if (WindowsServiceHelpers.IsWindowsService())
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSignalR();
-
-var frontendUrl = builder.Configuration.GetValue<string>("FrontendUrl");
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy",
-        builder => builder
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .WithOrigins(frontendUrl ?? "http://localhost:8080")
-            .AllowCredentials());
-});
-
 builder.Services.AddScoped<OutputService>();
 builder.Services.AddScoped<InputService>();
 
@@ -41,8 +27,6 @@ builder.Services.AddScoped<InputService>();
 //                      .AddJsonFile(configPath, optional: false, reloadOnChange: true);
 
 var app = builder.Build();
-
-app.UseCors("CorsPolicy");
 var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider.GetRequiredService<DatabaseContext>().Database.EnsureCreated();
 
@@ -52,6 +36,5 @@ app.UseSwaggerUI();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<WidgetHub>("/widgetHub");
 
 app.Run();

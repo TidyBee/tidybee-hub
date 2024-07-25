@@ -59,6 +59,7 @@ namespace WidgetController.Controllers
             return Ok(_outputService.getTextWidgetstorage(await _inputService.getFiles()));
         }
 
+
         [HttpGet("getOverviewAll")]
         public async Task<IActionResult> GetOverviewAll()
         {
