@@ -70,6 +70,7 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
             _context.ChangeTracker.Clear();
         }
 
+
         var stored_procedures_raw = new List<string>
         {
             "CALL calculate_every_perished_scores();",
