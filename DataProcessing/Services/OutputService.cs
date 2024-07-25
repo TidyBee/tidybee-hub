@@ -227,41 +227,48 @@ public class OutputService
 
     public string getOverviewMisnamed(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
     {
-        var overviews = new List<Overview>();
+        // Pre-allocate memory for the overviews list
+        List<Overview> overviews = new List<Overview>(files.Count);
 
-        foreach (var file in files)
+        // Cache the rule to avoid repeated LINQ queries
+        var misnamedRule = rules.FirstOrDefault(r => r.Name == "misnamed");
+        if (misnamedRule == null)
+        {
+            throw new InvalidOperationException("Misnamed rule not found");
+        }
+
+        dynamic temp = JsonConvert.DeserializeObject(misnamedRule.RulesConfig);
+
+        // Use Parallel.ForEach for concurrent processing
+        Parallel.ForEach(files, file =>
         {
             if (file.MisnamedScore != 'A')
             {
-                var rule = rules
-                    .Where(r => r.Name == "misnamed").First()!;
-
                 var configurations = new List<Configuration>();
-                dynamic temp = JsonConvert.DeserializeObject(rule.RulesConfig!)!;
 
-                if (temp!.regex_rules != null)
+                if (temp?.regex_rules != null)
                 {
                     foreach (var inputConfiguration in temp.regex_rules)
                     {
                         var configuration = new Configuration
                         {
-                            name = inputConfiguration.name!,
-                            weight = inputConfiguration.weight!,
-                            description = inputConfiguration.description!,
+                            name = inputConfiguration.name,
+                            weight = inputConfiguration.weight,
+                            description = inputConfiguration.description,
                             grade = file.MisnamedScore == 'U' ? 'E' : file.MisnamedScore
                         };
 
                         if (inputConfiguration.max_occurrences != null)
                         {
-                            configuration.limitInt = inputConfiguration.max_occurrences!;
+                            configuration.limitInt = inputConfiguration.max_occurrences;
                         }
                         else if (inputConfiguration.expiration_days != null)
                         {
-                            configuration.limitISO = inputConfiguration.expiration_days!;
+                            configuration.limitISO = inputConfiguration.expiration_days;
                         }
                         else
                         {
-                            configuration.regex = inputConfiguration.regex!;
+                            configuration.regex = inputConfiguration.regex;
                         }
 
                         configurations.Add(configuration);
@@ -271,17 +278,17 @@ public class OutputService
                 {
                     var configuration = new Configuration
                     {
-                        name = rule.Name!,
-                        description = rule.Description!,
-                        weight = rule.Weight!,
+                        name = misnamedRule.Name,
+                        description = misnamedRule.Description,
+                        weight = misnamedRule.Weight,
                     };
-                    if (temp.max_occurrences != null)
+                    if (temp?.max_occurrences != null)
                     {
-                        configuration.limitInt = temp.max_occurrences!;
+                        configuration.limitInt = temp.max_occurrences;
                     }
-                    else if (temp.expiration_days != null)
+                    else if (temp?.expiration_days != null)
                     {
-                        configuration.limitISO = temp.expiration_days!;
+                        configuration.limitISO = temp.expiration_days;
                     }
                     configurations.Add(configuration);
                 }
@@ -306,51 +313,63 @@ public class OutputService
                     }
                 };
 
-                overviews.Add(overview);
+                // Thread-safe addition to the list
+                lock (overviews)
+                {
+                    overviews.Add(overview);
+                }
             }
-        }
+        });
 
         var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
     }
 
+
     public string getOverviewDuplicate(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
     {
-        var overviews = new List<Overview>();
+        // Pre-allocate memory for the overviews list
+        List<Overview> overviews = new List<Overview>(files.Count);
 
-        foreach (var file in files)
+        // Cache the rule to avoid repeated LINQ queries
+        var duplicatedRule = rules.FirstOrDefault(r => r.Name == "duplicated");
+        if (duplicatedRule == null)
+        {
+            throw new InvalidOperationException("Duplicated rule not found");
+        }
+
+        dynamic temp = JsonConvert.DeserializeObject(duplicatedRule.RulesConfig);
+
+        // Use Parallel.ForEach for concurrent processing
+        Parallel.ForEach(files, file =>
         {
             if (file.DuplicatedScore != 'A')
             {
-                var rule = rules
-                    .Where(r => r.Name == "duplicated").First()!;
-
                 var configurations = new List<Configuration>();
-                dynamic temp = JsonConvert.DeserializeObject(rule.RulesConfig!)!;
 
-                if (temp!.regex_rules != null)
+                if (temp?.regex_rules != null)
                 {
                     foreach (var inputConfiguration in temp.regex_rules)
                     {
                         var configuration = new Configuration
                         {
-                            name = inputConfiguration.name!,
-                            weight = inputConfiguration.weight!,
-                            description = inputConfiguration.description!,
-                            grade = file.DuplicatedScore == 'U' ? 'E' : 'E'
+                            name = inputConfiguration.name,
+                            weight = inputConfiguration.weight,
+                            description = inputConfiguration.description,
+                            grade = file.DuplicatedScore == 'U' ? 'E' : file.DuplicatedScore
                         };
 
                         if (inputConfiguration.max_occurrences != null)
                         {
-                            configuration.limitInt = inputConfiguration.max_occurrences!;
+                            configuration.limitInt = inputConfiguration.max_occurrences;
                         }
                         else if (inputConfiguration.expiration_days != null)
                         {
-                            configuration.limitISO = inputConfiguration.expiration_days!;
+                            configuration.limitISO = inputConfiguration.expiration_days;
                         }
                         else
                         {
-                            configuration.regex = inputConfiguration.regex!;
+                            configuration.regex = inputConfiguration.regex;
                         }
 
                         configurations.Add(configuration);
@@ -360,17 +379,17 @@ public class OutputService
                 {
                     var configuration = new Configuration
                     {
-                        name = rule.Name!,
-                        description = rule.Description!,
-                        weight = rule.Weight!,
+                        name = duplicatedRule.Name,
+                        description = duplicatedRule.Description,
+                        weight = duplicatedRule.Weight,
                     };
-                    if (temp.max_occurrences != null)
+                    if (temp?.max_occurrences != null)
                     {
-                        configuration.limitInt = temp.max_occurrences!;
+                        configuration.limitInt = temp.max_occurrences;
                     }
-                    else if (temp.expiration_days != null)
+                    else if (temp?.expiration_days != null)
                     {
-                        configuration.limitISO = temp.expiration_days!;
+                        configuration.limitISO = temp.expiration_days;
                     }
                     configurations.Add(configuration);
                 }
@@ -395,9 +414,13 @@ public class OutputService
                     }
                 };
 
-                overviews.Add(overview);
+                // Thread-safe addition to the list
+                lock (overviews)
+                {
+                    overviews.Add(overview);
+                }
             }
-        }
+        });
 
         var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
@@ -405,41 +428,48 @@ public class OutputService
 
     public string getOverviewUnused(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
     {
-        var overviews = new List<Overview>();
+        // Pre-allocate memory for the overviews list
+        List<Overview> overviews = new List<Overview>(files.Count);
 
-        foreach (var file in files)
+        // Cache the rule to avoid repeated LINQ queries
+        var perishedRule = rules.FirstOrDefault(r => r.Name == "perished");
+        if (perishedRule == null)
+        {
+            throw new InvalidOperationException("Perished rule not found");
+        }
+
+        dynamic temp = JsonConvert.DeserializeObject(perishedRule.RulesConfig);
+
+        // Use Parallel.ForEach for concurrent processing
+        Parallel.ForEach(files, file =>
         {
             if (file.PerishedScore != 'A')
             {
-                var rule = rules
-                    .Where(r => r.Name == "perished").First()!;
-
                 var configurations = new List<Configuration>();
-                dynamic temp = JsonConvert.DeserializeObject(rule.RulesConfig!)!;
 
-                if (temp!.regex_rules != null)
+                if (temp?.regex_rules != null)
                 {
                     foreach (var inputConfiguration in temp.regex_rules)
                     {
                         var configuration = new Configuration
                         {
-                            name = inputConfiguration.name!,
-                            weight = inputConfiguration.weight!,
-                            description = inputConfiguration.description!,
-                            grade = file.PerishedScore == 'U' ? 'E' : 'E'
+                            name = inputConfiguration.name,
+                            weight = inputConfiguration.weight,
+                            description = inputConfiguration.description,
+                            grade = file.PerishedScore == 'U' ? 'E' : file.PerishedScore
                         };
 
                         if (inputConfiguration.max_occurrences != null)
                         {
-                            configuration.limitInt = inputConfiguration.max_occurrences!;
+                            configuration.limitInt = inputConfiguration.max_occurrences;
                         }
                         else if (inputConfiguration.expiration_days != null)
                         {
-                            configuration.limitISO = inputConfiguration.expiration_days!;
+                            configuration.limitISO = inputConfiguration.expiration_days;
                         }
                         else
                         {
-                            configuration.regex = inputConfiguration.regex!;
+                            configuration.regex = inputConfiguration.regex;
                         }
 
                         configurations.Add(configuration);
@@ -449,17 +479,17 @@ public class OutputService
                 {
                     var configuration = new Configuration
                     {
-                        name = rule.Name!,
-                        description = rule.Description!,
-                        weight = rule.Weight!,
+                        name = perishedRule.Name,
+                        description = perishedRule.Description,
+                        weight = perishedRule.Weight,
                     };
-                    if (temp.max_occurrences != null)
+                    if (temp?.max_occurrences != null)
                     {
-                        configuration.limitInt = temp.max_occurrences!;
+                        configuration.limitInt = temp.max_occurrences;
                     }
-                    else if (temp.expiration_days != null)
+                    else if (temp?.expiration_days != null)
                     {
-                        configuration.limitISO = temp.expiration_days!;
+                        configuration.limitISO = temp.expiration_days;
                     }
                     configurations.Add(configuration);
                 }
@@ -475,7 +505,7 @@ public class OutputService
                     },
                     tidy_score = new TidyScore
                     {
-                        grade = file.GlobalScore == 'U' ? 'E' : file.PerishedScore,
+                        grade = file.GlobalScore == 'U' ? 'E' : file.GlobalScore,
                         unused = new Unused
                         {
                             grade = file.PerishedScore == 'U' ? 'E' : file.PerishedScore,
@@ -484,13 +514,18 @@ public class OutputService
                     }
                 };
 
-                overviews.Add(overview);
+                // Thread-safe addition to the list
+                lock (overviews)
+                {
+                    overviews.Add(overview);
+                }
             }
-        }
+        });
 
         var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
     }
+
 
     public string getTidyRules(List<DataProcessing.Models.Input.Rule> rules)
     {
