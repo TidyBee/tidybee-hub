@@ -2,6 +2,11 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using DataProcessing.Models;
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 public class OutputService
 {
     public OutputService()
@@ -171,9 +176,11 @@ public class OutputService
 
     public string getOverviewAll(List<DataProcessing.Models.Input.File> files)
     {
-        List<Overview> overviews = new List<Overview>();
+        // Pre-allocate memory for the overviews list
+        List<Overview> overviews = new List<Overview>(files.Count);
 
-        foreach (var file in files)
+        // Use Parallel.ForEach for concurrent processing
+        Parallel.ForEach(files, file =>
         {
             var dateTimeOffset = new DateTimeOffset(file.LastModified);
             var secsSinceEpoch = dateTimeOffset.ToUnixTimeSeconds();
@@ -206,12 +213,17 @@ public class OutputService
                 }
             };
 
-            overviews.Add(overview);
-        }
+            // Thread-safe addition to the list
+            lock (overviews)
+            {
+                overviews.Add(overview);
+            }
+        });
 
         var jsonData = JsonConvert.SerializeObject(overviews);
         return jsonData;
     }
+
 
     public string getOverviewMisnamed(List<DataProcessing.Models.Input.File> files, List<DataProcessing.Models.Input.Rule> rules)
     {
