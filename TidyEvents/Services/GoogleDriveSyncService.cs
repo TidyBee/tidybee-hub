@@ -39,7 +39,7 @@ namespace TidyEvents.Services
 
         private async Task<UserCredential> GetCredentialAsync()
         {
-            using var stream = new FileStream("/src/Services/client_secret.json", FileMode.Open, FileAccess.Read);
+            using var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read);
             var clientSecrets = GoogleClientSecrets.Load(stream).Secrets;
 
             var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(

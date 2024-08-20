@@ -4,6 +4,7 @@ WORKDIR /src
 COPY TidyEvents/TidyEvents.csproj ./
 RUN dotnet restore "./TidyEvents.csproj" -a $TARGETARCH
 COPY TidyEvents/ ./
+COPY TidyEvents/Services/client_secret.json /app
 RUN dotnet build "TidyEvents.csproj" -c Release -o /app/build -a $TARGETARCH
 
 FROM build AS publish
