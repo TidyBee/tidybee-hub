@@ -23,6 +23,6 @@ var services = scope.ServiceProvider.GetRequiredService<DatabaseContext>().Datab
 // Configure the HTTP request pipeline.
 app.MapGrpcService<TidyBeeEventsService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
-var notionService = new NotionFileSyncService(logger, dbContext, grpcClient);
+var notionService = new NotionFileSyncService(logger, dbContext);
 await notionService.SyncFilesFromNotionAsync("secret_5BnuviYZnZuHc6Ji1vUv8M0PcRayV9SxnWl0uVwvRIH", "840184a42f0a41ff864ae5533d30e670");
 app.Run();

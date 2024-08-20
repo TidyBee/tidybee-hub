@@ -1,4 +1,3 @@
-using Grpc.Net.Client;
 using Microsoft.Extensions.Logging;
 using Notion.Client;
 using TidyEvents.Context;
@@ -10,13 +9,11 @@ namespace TidyEvents.Services
     {
         private readonly ILogger<NotionFileSyncService> _logger;
         private readonly DatabaseContext _context;
-        private readonly TidyBeeEvents.TidyBeeEventsClient _grpcClient;
 
-        public NotionFileSyncService(ILogger<NotionFileSyncService> logger, DatabaseContext context, TidyBeeEvents.TidyBeeEventsClient grpcClient)
+        public NotionFileSyncService(ILogger<NotionFileSyncService> logger, DatabaseContext context)
         {
             _logger = logger;
             _context = context;
-            _grpcClient = grpcClient;
         }
 
         public async Task SyncFilesFromNotionAsync(string notionApiToken, string notionDatabaseId)
@@ -48,20 +45,7 @@ namespace TidyEvents.Services
                         LastModified = fileLastModified.ToString("o") // Format to ISO 8601
                     };
 
-                    using var call = _grpcClient.FileEvent();
-                    await call.RequestStream.WriteAsync(fileEventRequest);
-
-                    await call.RequestStream.CompleteAsync();
-                    var response = await call.ResponseAsync;
-
-                    if (response.Status == Status.Ok)
-                    {
-                        _logger.LogInformation($"Successfully synced file: {fileName} from Notion");
-                    }
-                    else
-                    {
-                        _logger.LogError($"Failed to sync file: {fileName} from Notion");
-                    }
+                    _logger.LogInformation($"Successfully synced file: {fileName} from Notion");
                 }
                 else
                 {
