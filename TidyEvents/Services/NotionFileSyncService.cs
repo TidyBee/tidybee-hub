@@ -23,10 +23,13 @@ namespace TidyEvents.Services
                 AuthToken = notionApiToken
             });
 
+            _logger.LogInformation($"NOTION STARTED");
+
             var database = await client.Databases.RetrieveAsync(notionDatabaseId);
 
             var queryResult = await client.Databases.QueryAsync(notionDatabaseId, new DatabasesQueryParameters
             {
+                Filter = null
             });
 
             foreach (var page in queryResult.Results)
