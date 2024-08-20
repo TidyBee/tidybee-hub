@@ -1,9 +1,7 @@
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Drive.v3;
-using Google.Apis.Drive.v3.Data;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace TidyEvents.Services
@@ -37,7 +35,7 @@ namespace TidyEvents.Services
             }
         }
 
-        private UserCredential GetCredentialAsync()
+        private GoogleCredential GetCredentialAsync()
         {
             using var stream = new FileStream("/app/credentials.json", FileMode.Open, FileAccess.Read);
             var credential = GoogleCredential.FromStream(stream)
