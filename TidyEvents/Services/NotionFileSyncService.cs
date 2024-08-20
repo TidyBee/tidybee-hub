@@ -34,17 +34,27 @@ namespace TidyEvents.Services
 
             foreach (var page in queryResult.Results)
             {
-                if (page.Properties.TryGetValue("Name", out var propertyValue) && propertyValue is TitleProperty titleProperty)
+                if (page.Properties.TryGetValue("Name", out var propertyValue))
                 {
-                    // Print each title in the property
-                    foreach (var title in titleProperty.Title)
+                    // Handle property value as dynamic
+                    var titleProperty = propertyValue as dynamic;
+
+                    // Check if it's a TitleProperty and print the title
+                    if (titleProperty?.Title != null)
                     {
-                        Console.WriteLine($"Title: {title.PlainText}");
+                        foreach (var title in titleProperty.Title)
+                        {
+                            Console.WriteLine($"Title: {title.PlainText}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Title property is not in the expected format.");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Title property not found or not of type Title.");
+                    Console.WriteLine("Title property not found.");
                 }
             }
         }
