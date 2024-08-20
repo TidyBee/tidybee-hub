@@ -39,8 +39,64 @@ namespace TidyEvents.Services
                     var propertyName = property.Key;
                     var propertyValue = property.Value;
 
-                    _logger.LogInformation("Property Name: {PropertyName}", propertyName);
-                    _logger.LogInformation("Property Type: {PropertyType}", propertyValue.Type);
+                    // Log basic information
+                    Console.WriteLine($"Property Name: {propertyName}");
+
+                    // Log property type and value
+                    switch (propertyValue.Type)
+                    {
+                        case PropertyType.Title:
+                            foreach (var title in propertyValue.Title)
+                            {
+                                Console.WriteLine($"Title: {title.PlainText}");
+                            }
+                            break;
+
+                        case PropertyType.RichText:
+                            foreach (var richText in propertyValue.RichText)
+                            {
+                                Console.WriteLine($"RichText: {richText.PlainText}");
+                            }
+                            break;
+
+                        case PropertyType.Number:
+                            Console.WriteLine($"Number: {propertyValue.Number}");
+                            break;
+
+                        case PropertyType.Select:
+                            Console.WriteLine($"Select: {propertyValue.Select?.Name}");
+                            break;
+
+                        case PropertyType.MultiSelect:
+                            Console.WriteLine($"MultiSelect: {string.Join(", ", propertyValue.MultiSelect.Select(s => s.Name))}");
+                            break;
+
+                        case PropertyType.Date:
+                            Console.WriteLine($"Date: {propertyValue.Date?.Start}");
+                            break;
+
+                        case PropertyType.Person:
+                            Console.WriteLine($"Person: {string.Join(", ", propertyValue.Person.Select(p => p.Name))}");
+                            break;
+
+                        case PropertyType.File:
+                            Console.WriteLine($"File: {string.Join(", ", propertyValue.File.Select(f => f.Name))}");
+                            break;
+
+                        case PropertyType.Checkbox:
+                            Console.WriteLine($"Checkbox: {propertyValue.Checkbox}");
+                            break;
+
+                        case PropertyType.Url:
+                            Console.WriteLine($"Url: {propertyValue.Url}");
+                            break;
+
+                        default:
+                            Console.WriteLine($"Unknown Type: {propertyValue.Type}");
+                            break;
+                    }
+
+                    Console.WriteLine(); // Add an empty line for readability
                 }
             }
         }
