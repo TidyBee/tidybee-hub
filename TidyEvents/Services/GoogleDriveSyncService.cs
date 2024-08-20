@@ -1,8 +1,9 @@
 using Google.Apis.Auth.OAuth2;
-using Google.Apis.Drive.v3;
 using Google.Apis.Services;
+using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
-using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TidyEvents.Services
@@ -20,7 +21,7 @@ namespace TidyEvents.Services
         {
             var service = new DriveService(new BaseClientService.Initializer
             {
-                HttpClientInitializer = GetCredential(apiKey),
+                HttpClientInitializer = await GetCredentialAsync(),
                 ApplicationName = "TidyBee"
             });
 
@@ -36,16 +37,19 @@ namespace TidyEvents.Services
             }
         }
 
-        private UserCredential GetCredential(string apiKey)
+        private async Task<UserCredential> GetCredentialAsync()
         {
-            // Here you need to configure OAuth2.0 or API Key usage
-            // This is a simplified example for OAuth2.0 client credentials
-            return GoogleWebAuthorizationBroker.AuthorizeAsync(
-                GoogleClientSecrets.Load("client_secret.json").Secrets,
+            using var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read);
+            var clientSecrets = GoogleClientSecrets.Load(stream).Secrets;
+
+            var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
+                clientSecrets,
                 new[] { DriveService.Scope.DriveReadonly },
                 "user",
                 CancellationToken.None
-            ).Result;
+            );
+
+            return credential;
         }
     }
 }
