@@ -21,7 +21,7 @@ namespace TidyEvents.Services
         {
             var service = new DriveService(new BaseClientService.Initializer
             {
-                HttpClientInitializer = await GetCredentialAsync(),
+                HttpClientInitializer = GetCredentialAsync(),
                 ApplicationName = "TidyBee"
             });
 
@@ -37,7 +37,7 @@ namespace TidyEvents.Services
             }
         }
 
-        private async Task<UserCredential> GetCredentialAsync()
+        private Task<UserCredential> GetCredentialAsync()
         {
             using var stream = new FileStream("/app/credentials.json", FileMode.Open, FileAccess.Read);
             var credential = GoogleCredential.FromStream(stream)
