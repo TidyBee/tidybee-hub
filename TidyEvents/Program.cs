@@ -15,6 +15,7 @@ builder.Services.AddGrpc().AddServiceOptions<TidyBeeEventsService>(options =>
 });
 builder.Services.Configure<AuthInterceptorOption>(builder.Configuration.GetSection("AuthInterceptor"));
 builder.Services.AddHttpClient<AuthInterceptor>();
+builder.Services.AddScoped<NotionFileSyncService>();
 
 var app = builder.Build();
 var scope = app.Services.CreateScope();
@@ -23,20 +24,6 @@ var services = scope.ServiceProvider.GetRequiredService<DatabaseContext>().Datab
 // Configure the HTTP request pipeline.
 app.MapGrpcService<TidyBeeEventsService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
-
-
-// Register NotionFileSyncService
-builder.Services.AddScoped<NotionFileSyncService>();
-
-var app = builder.Build();
-
-// Ensure the database is created
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var dbContext = services.GetRequiredService<DatabaseContext>();
-    dbContext.Database.EnsureCreated();
-}
 
 // Execute the Notion synchronization service
 using (var scope = app.Services.CreateScope())
