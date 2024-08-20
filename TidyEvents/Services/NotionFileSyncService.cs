@@ -34,13 +34,17 @@ namespace TidyEvents.Services
 
             foreach (var page in queryResult.Results)
             {
-                foreach (var property in page.Properties)
+                if (page.Properties.TryGetValue("Name", out var propertyValue) && propertyValue is TitleProperty titleProperty)
                 {
-                    var propertyName = property.Key;
-                    var propertyValue = property.Value;
-
-                    _logger.LogInformation("Property Name: {PropertyName}", propertyName);
-                    _logger.LogInformation("Property Type: {PropertyType}", propertyValue);
+                    // Print each title in the property
+                    foreach (var title in titleProperty.Title)
+                    {
+                        Console.WriteLine($"Title: {title.PlainText}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Title property not found or not of type Title.");
                 }
             }
         }
