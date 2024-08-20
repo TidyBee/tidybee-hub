@@ -10,12 +10,10 @@ namespace TidyEvents.Services
     public class GoogleDriveSyncService
     {
         private readonly ILogger<GoogleDriveSyncService> _logger;
-        private readonly DatabaseContext _context;
 
-        public GoogleDriveSyncService(ILogger<GoogleDriveSyncService> logger, DatabaseContext context)
+        public GoogleDriveSyncService(ILogger<GoogleDriveSyncService> logger)
         {
             _logger = logger;
-            _context = context;
         }
 
         public async Task SyncFilesFromGoogleDriveAsync(string apiKey)
