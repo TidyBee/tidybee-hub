@@ -39,61 +39,59 @@ namespace TidyEvents.Services
                     var propertyName = property.Key;
                     var propertyValue = property.Value;
 
-                    // Log basic information
+                    // Log property name
                     Console.WriteLine($"Property Name: {propertyName}");
 
-                    // Log property type and value
-                    switch (propertyValue.Type)
+                    // Check property type and log value
+                    if (propertyValue is TitleProperty titleProperty)
                     {
-                        case PropertyType.Title:
-                            foreach (var title in propertyValue.Title)
-                            {
-                                Console.WriteLine($"Title: {title.PlainText}");
-                            }
-                            break;
-
-                        case PropertyType.RichText:
-                            foreach (var richText in propertyValue.RichText)
-                            {
-                                Console.WriteLine($"RichText: {richText.PlainText}");
-                            }
-                            break;
-
-                        case PropertyType.Number:
-                            Console.WriteLine($"Number: {propertyValue.Number}");
-                            break;
-
-                        case PropertyType.Select:
-                            Console.WriteLine($"Select: {propertyValue.Select?.Name}");
-                            break;
-
-                        case PropertyType.MultiSelect:
-                            Console.WriteLine($"MultiSelect: {string.Join(", ", propertyValue.MultiSelect.Select(s => s.Name))}");
-                            break;
-
-                        case PropertyType.Date:
-                            Console.WriteLine($"Date: {propertyValue.Date?.Start}");
-                            break;
-
-                        case PropertyType.Person:
-                            Console.WriteLine($"Person: {string.Join(", ", propertyValue.Person.Select(p => p.Name))}");
-                            break;
-
-                        case PropertyType.File:
-                            Console.WriteLine($"File: {string.Join(", ", propertyValue.File.Select(f => f.Name))}");
-                            break;
-
-                        case PropertyType.Checkbox:
-                            Console.WriteLine($"Checkbox: {propertyValue.Checkbox}");
-                            break;
-
-                        case PropertyType.Url:
-                            Console.WriteLine($"Url: {propertyValue.Url}");
-                            break;
-
-                        default:
-                            Console.WriteLine($"Unknown Type: {propertyValue.Type}");
-                            break;
+                        foreach (var title in titleProperty.Title)
+                        {
+                            Console.WriteLine($"Title: {title.PlainText}");
+                        }
+                    }
+                    else if (propertyValue is RichTextProperty richTextProperty)
+                    {
+                        foreach (var richText in richTextProperty.RichText)
+                        {
+                            Console.WriteLine($"RichText: {richText.PlainText}");
+                        }
+                    }
+                    else if (propertyValue is NumberProperty numberProperty)
+                    {
+                        Console.WriteLine($"Number: {numberProperty.Number}");
+                    }
+                    else if (propertyValue is SelectProperty selectProperty)
+                    {
+                        Console.WriteLine($"Select: {selectProperty.Select?.Name}");
+                    }
+                    else if (propertyValue is MultiSelectProperty multiSelectProperty)
+                    {
+                        Console.WriteLine($"MultiSelect: {string.Join(", ", multiSelectProperty.MultiSelect.Select(s => s.Name))}");
+                    }
+                    else if (propertyValue is DateProperty dateProperty)
+                    {
+                        Console.WriteLine($"Date: {dateProperty.Date?.Start}");
+                    }
+                    else if (propertyValue is PersonProperty personProperty)
+                    {
+                        Console.WriteLine($"Person: {string.Join(", ", personProperty.Person.Select(p => p.Name))}");
+                    }
+                    else if (propertyValue is FileProperty fileProperty)
+                    {
+                        Console.WriteLine($"File: {string.Join(", ", fileProperty.File.Select(f => f.Name))}");
+                    }
+                    else if (propertyValue is CheckboxProperty checkboxProperty)
+                    {
+                        Console.WriteLine($"Checkbox: {checkboxProperty.Checkbox}");
+                    }
+                    else if (propertyValue is UrlProperty urlProperty)
+                    {
+                        Console.WriteLine($"Url: {urlProperty.Url}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Unknown Property Type");
                     }
 
                     Console.WriteLine(); // Add an empty line for readability
