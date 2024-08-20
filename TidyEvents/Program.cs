@@ -16,6 +16,7 @@ builder.Services.AddGrpc().AddServiceOptions<TidyBeeEventsService>(options =>
 builder.Services.Configure<AuthInterceptorOption>(builder.Configuration.GetSection("AuthInterceptor"));
 builder.Services.AddHttpClient<AuthInterceptor>();
 builder.Services.AddScoped<NotionFileSyncService>();
+builder.Services.AddScoped<GoogleDriveSyncService>();
 
 var app = builder.Build();
 var scope = app.Services.CreateScope();
@@ -27,9 +28,9 @@ app.MapGet("/", () => "Communication with gRPC endpoints must be made through a 
 
 // Execute the Notion synchronization service
 var notionService = scope.ServiceProvider.GetRequiredService<NotionFileSyncService>();
-var logger = scope.ServiceProvider.GetRequiredService<ILogger<NotionFileSyncService>>();
-var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
-
 await notionService.SyncFilesFromNotionAsync("secret_5BnuviYZnZuHc6Ji1vUv8M0PcRayV9SxnWl0uVwvRIH", "840184a42f0a41ff864ae5533d30e670");
+
+var googleDriveService = scope.ServiceProvider.GetRequiredService<GoogleDriveSyncService>();
+await googleDriveService.SyncFilesFromGoogleDriveAsync("");
 
 app.Run();
