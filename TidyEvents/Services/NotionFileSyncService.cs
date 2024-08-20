@@ -29,12 +29,12 @@ namespace TidyEvents.Services
 
             var queryResult = await client.Databases.QueryAsync(notionDatabaseId, new DatabasesQueryParameters
             {
-                Filter = null
+                Filter = null,
             });
 
             foreach (var page in queryResult.Results)
             {
-                if (page.Properties.TryGetValue("Name", out var propertyValue))
+                if (page.Properties.TryGetValue("Flav", out var propertyValue))
                 {
                     // Handle property value as dynamic
                     var titleProperty = propertyValue as dynamic;
