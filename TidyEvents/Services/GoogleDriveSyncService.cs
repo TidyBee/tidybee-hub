@@ -38,7 +38,7 @@ namespace TidyEvents.Services
 
         private async Task<GoogleCredential> GetCredentialAsync()
         {
-            using var stream = new FileStream("/app/credentials.json", FileMode.Open, FileAccess.Read);
+            using var stream = new FileStream("/app/app.json", FileMode.Open, FileAccess.Read);
             var credential = GoogleCredential.FromStream(stream)
                 .CreateScoped(DriveService.Scope.DriveReadonly);
 
