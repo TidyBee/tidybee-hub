@@ -34,7 +34,8 @@ namespace TidyEvents.Services
 
             foreach (var page in queryResult.Results)
             {
-                _logger.LogInformation($"Successfully synced file: {page.Properties} from Notion");
+                var fileName = page.Properties["Name"];
+                _logger.LogInformation($"Successfully synced file: {fileName} from Notion");
             }
         }
     }
