@@ -24,7 +24,21 @@ namespace TidyEvents.Services
             });
 
             var database = await client.Databases.RetrieveAsync(notionDatabaseId);
-            var queryResult = await client.Databases.QueryAsync(notionDatabaseId);
+
+            // Define sorting (optional)
+            var sorts = new List<Sort>
+            {
+                new Sort
+                {
+                    Property = "Last Modified",
+                    Direction = SortDirection.Descending
+                }
+            };
+
+            var queryResult = await client.Databases.QueryAsync(notionDatabaseId, new DatabasesQueryParameters
+            {
+                Sorts = sorts
+            });
 
             foreach (var page in queryResult.Results)
             {
