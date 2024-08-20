@@ -37,7 +37,7 @@ namespace TidyEvents.Services
             }
         }
 
-        private Task<UserCredential> GetCredentialAsync()
+        private UserCredential GetCredentialAsync()
         {
             using var stream = new FileStream("/app/credentials.json", FileMode.Open, FileAccess.Read);
             var credential = GoogleCredential.FromStream(stream)
