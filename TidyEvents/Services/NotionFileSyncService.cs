@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using Notion;
+using Notion.Client;
 using TidyEvents.Context;
 using TidyEvents.Models;
 
