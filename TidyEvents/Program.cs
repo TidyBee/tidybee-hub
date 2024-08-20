@@ -26,13 +26,10 @@ app.MapGrpcService<TidyBeeEventsService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 // Execute the Notion synchronization service
-using (var scope = app.Services.CreateScope())
-{
-    var notionService = scope.ServiceProvider.GetRequiredService<NotionFileSyncService>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<NotionFileSyncService>>();
-    var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+var notionService = scope.ServiceProvider.GetRequiredService<NotionFileSyncService>();
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<NotionFileSyncService>>();
+var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
 
-    await notionService.SyncFilesFromNotionAsync("secret_5BnuviYZnZuHc6Ji1vUv8M0PcRayV9SxnWl0uVwvRIH", "840184a42f0a41ff864ae5533d30e670");
-}
+await notionService.SyncFilesFromNotionAsync("secret_5BnuviYZnZuHc6Ji1vUv8M0PcRayV9SxnWl0uVwvRIH", "840184a42f0a41ff864ae5533d30e670");
 
 app.Run();

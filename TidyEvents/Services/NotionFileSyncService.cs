@@ -25,28 +25,13 @@ namespace TidyEvents.Services
 
             var database = await client.Databases.RetrieveAsync(notionDatabaseId);
 
-            // Define sorting (optional)
-            var sorts = new List<Sort>
-            {
-                new Sort
-                {
-                    Property = "Last Modified",
-                    Direction = SortDirection.Descending
-                }
-            };
-
             var queryResult = await client.Databases.QueryAsync(notionDatabaseId, new DatabasesQueryParameters
             {
-                Sorts = sorts
             });
 
             foreach (var page in queryResult.Results)
             {
-                var fileName = page.Properties["Name"].Title[0].PlainText;
-                var fileHash = page.Properties["Hash"].RichText[0].PlainText;
-                var fileSize = int.Parse(page.Properties["Size"].Number.ToString());
-                var fileLastModified = DateTime.Parse(page.Properties["Last Modified"].LastEditedTime);
-                _logger.LogInformation($"Successfully synced file: {fileName} from Notion");
+                _logger.LogInformation($"Successfully synced file: {page.Properties} from Notion");
             }
         }
     }
