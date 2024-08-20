@@ -4,7 +4,6 @@ WORKDIR /src
 COPY TidyEvents/TidyEvents.csproj ./
 RUN dotnet restore "./TidyEvents.csproj" -a $TARGETARCH
 COPY TidyEvents/ ./
-COPY TidyEvents/Services/client_secret.json /app/client_secret.json
 RUN dotnet build "TidyEvents.csproj" -c Release -o /app/build -a $TARGETARCH
 
 FROM build AS publish
@@ -13,6 +12,7 @@ RUN dotnet publish "TidyEvents.csproj" -c Release -o /app/publish -a $TARGETARCH
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS final
 LABEL org.opencontainers.image.source=https://github.com/TidyBee/tidybee-hub
 WORKDIR /app
+COPY TidyEvents/Services/client_secret.json /app/client_secret.json
 COPY --from=publish /app/publish .
 ENV ASPNETCORE_ENVIRONMENT=Container
 ENTRYPOINT ["dotnet", "TidyEvents.dll"]
