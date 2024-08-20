@@ -12,7 +12,7 @@ RUN dotnet publish "TidyEvents.csproj" -c Release -o /app/publish -a $TARGETARCH
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS final
 LABEL org.opencontainers.image.source=https://github.com/TidyBee/tidybee-hub
 WORKDIR /app
-COPY TidyEvents/Services/client_secret.json /app/client_secret.json
+COPY TidyEvents/Services/credentials.json /app/credentials.json
 COPY --from=publish /app/publish .
 ENV ASPNETCORE_ENVIRONMENT=Container
 ENTRYPOINT ["dotnet", "TidyEvents.dll"]

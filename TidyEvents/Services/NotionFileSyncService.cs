@@ -34,7 +34,7 @@ namespace TidyEvents.Services
 
             foreach (var page in queryResult.Results)
             {
-                if (page.Properties.TryGetValue("Flav", out var propertyValue))
+                if (page.Properties.TryGetValue("Name", out var propertyValue))
                 {
                     // Handle property value as dynamic
                     var titleProperty = propertyValue as dynamic;

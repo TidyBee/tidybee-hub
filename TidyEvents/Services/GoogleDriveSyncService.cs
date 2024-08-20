@@ -39,15 +39,9 @@ namespace TidyEvents.Services
 
         private async Task<UserCredential> GetCredentialAsync()
         {
-            using var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read);
-            var clientSecrets = GoogleClientSecrets.Load(stream).Secrets;
-
-            var credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
-                clientSecrets,
-                new[] { DriveService.Scope.DriveReadonly },
-                "user",
-                CancellationToken.None
-            );
+            using var stream = new FileStream("/app/credentials.json", FileMode.Open, FileAccess.Read);
+            var credential = GoogleCredential.FromStream(stream)
+                .CreateScoped(DriveService.Scope.DriveReadonly);
 
             return credential;
         }

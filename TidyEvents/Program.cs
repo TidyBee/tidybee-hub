@@ -28,7 +28,7 @@ app.MapGet("/", () => "Communication with gRPC endpoints must be made through a 
 
 // Execute the Notion synchronization service
 var notionService = scope.ServiceProvider.GetRequiredService<NotionFileSyncService>();
-await notionService.SyncFilesFromNotionAsync("secret_OM5WrzIOYfMU3I3T2I39ZxdYe7PBFG647a9eLNGZOt", "0a9d6d2abe854eb399049d12a1e506a2");
+await notionService.SyncFilesFromNotionAsync("secret_5BnuviYZnZuHc6Ji1vUv8M0PcRayV9SxnWl0uVwvRIH", "840184a42f0a41ff864ae5533d30e670");
 
 var googleDriveService = scope.ServiceProvider.GetRequiredService<GoogleDriveSyncService>();
 await googleDriveService.SyncFilesFromGoogleDriveAsync("");
