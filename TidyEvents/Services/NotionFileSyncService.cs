@@ -32,25 +32,7 @@ namespace TidyEvents.Services
                 var fileHash = page.Properties["Hash"].RichText[0].PlainText;
                 var fileSize = int.Parse(page.Properties["Size"].Number.ToString());
                 var fileLastModified = DateTime.Parse(page.Properties["Last Modified"].LastEditedTime);
-
-                var fileExists = await _context.Files.AnyAsync(f => f.Name == fileName);
-                if (!fileExists)
-                {
-                    var fileEventRequest = new FileEventRequest
-                    {
-                        EventType = FileEventType.Created,
-                        Path = { fileName },
-                        Hash = fileHash,
-                        Size = (ulong)fileSize,
-                        LastModified = fileLastModified.ToString("o") // Format to ISO 8601
-                    };
-
-                    _logger.LogInformation($"Successfully synced file: {fileName} from Notion");
-                }
-                else
-                {
-                    _logger.LogInformation($"File {fileName} already exists in the database. Skipping.");
-                }
+                _logger.LogInformation($"Successfully synced file: {fileName} from Notion");
             }
         }
     }
