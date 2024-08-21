@@ -15,12 +15,13 @@ namespace TidyEvents.Services
             _logger = logger;
         }
 
-        public async Task SyncFilesFromGoogleDriveAsync(string apiKey)
+
+        public async Task SyncFilesFromGoogleDriveAsync()
         {
             var service = new DriveService(new BaseClientService.Initializer
             {
-                HttpClientInitializer = GetCredentialAsync(),
-                ApplicationName = "TidyBee"
+                HttpClientInitializer = await GetCredentialAsync(),
+                ApplicationName = "YourAppName"
             });
 
             _logger.LogInformation($"GOOGLE DRIVE SYNC STARTED");
@@ -35,7 +36,7 @@ namespace TidyEvents.Services
             }
         }
 
-        private GoogleCredential GetCredentialAsync()
+        private async Task<GoogleCredential> GetCredentialAsync()
         {
             using var stream = new FileStream("/app/credentials.json", FileMode.Open, FileAccess.Read);
             var credential = GoogleCredential.FromStream(stream)
