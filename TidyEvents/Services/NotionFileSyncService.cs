@@ -4,6 +4,10 @@ using TidyEvents.Context;
 using TidyEvents.Models;
 using System.IO.Hashing;
 using System.Text;
+using Npgsql;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace TidyEvents.Services
 {
@@ -36,10 +40,7 @@ namespace TidyEvents.Services
                 var title_property = page.Properties.Where(p => p.Value.Type == PropertyValueType.Title).FirstOrDefault();
                 var title = title_property.Value as TitlePropertyValue;
 
-                Console.WriteLine($"Title: {title?.Title[0].PlainText}");
-
                 var last_modified = page.LastEditedTime;
-
 
                 var page_content = await PageContentToRawText(page);
 
@@ -64,6 +65,29 @@ namespace TidyEvents.Services
             }
             await _context.SaveChangesAsync();
             _context.ChangeTracker.Clear();
+
+
+            _logger.LogInformation($"Applying stored procedures / Calculating rules");
+            var stored_procedures_raw = new List<string>
+            {
+                "CALL calculate_every_perished_scores();",
+                "CALL calculate_every_misnamed_scores();",
+                "CALL calculate_every_duplicated_scores();",
+                "CALL calculate_every_global_scores();"
+            };
+            var stored_procedure_fs = stored_procedures_raw.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
+
+            foreach (var sp in stored_procedure_fs)
+            {
+                try
+                {
+                    await _context.Database.ExecuteSqlAsync(sp);
+                }
+                catch (NpgsqlException e)
+                {
+                    _logger.LogError(e, $"Error executing stored procedure {sp}");
+                }
+            }
         }
         private async Task<string> PageContentToRawText(Page page) {
             var page_blocks = await _notionClient.Blocks.RetrieveChildrenAsync(page.Id);
