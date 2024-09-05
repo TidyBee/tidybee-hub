@@ -2,6 +2,8 @@ using Microsoft.Extensions.Logging;
 using Notion.Client;
 using TidyEvents.Context;
 using TidyEvents.Models;
+using System.IO.Hashing;
+using System.Text;
 
 namespace TidyEvents.Services
 {
@@ -9,54 +11,96 @@ namespace TidyEvents.Services
     {
         private readonly ILogger<NotionFileSyncService> _logger;
         private readonly DatabaseContext _context;
+        private readonly INotionClient _notionClient;
+        private readonly XxHash64 _hasher = new();
 
-        public NotionFileSyncService(ILogger<NotionFileSyncService> logger, DatabaseContext context)
+        public NotionFileSyncService(ILogger<NotionFileSyncService> logger, DatabaseContext context, INotionClient notionClient)
         {
             _logger = logger;
             _context = context;
+            _notionClient = notionClient;
         }
 
-        public async Task SyncFilesFromNotionAsync(string notionApiToken, string notionDatabaseId)
+        public async Task SyncFilesFromNotionAsync(string notionDatabaseId)
         {
-            var client = NotionClientFactory.Create(new ClientOptions
-            {
-                AuthToken = notionApiToken
-            });
-
             _logger.LogInformation($"NOTION STARTED");
 
-            var database = await client.Databases.RetrieveAsync(notionDatabaseId);
 
-            var queryResult = await client.Databases.QueryAsync(notionDatabaseId, new DatabasesQueryParameters
+            var queryResult = await _notionClient.Databases.QueryAsync(notionDatabaseId, new DatabasesQueryParameters
             {
                 Filter = null,
             });
 
             foreach (var page in queryResult.Results)
             {
-                if (page.Properties.TryGetValue("Name", out var propertyValue))
-                {
-                    // Handle property value as dynamic
-                    var titleProperty = propertyValue as dynamic;
+                var title_property = page.Properties.Where(p => p.Value.Type == PropertyValueType.Title).FirstOrDefault();
+                var title = title_property.Value as TitlePropertyValue;
 
-                    // Check if it's a TitleProperty and print the title
-                    if (titleProperty?.Title != null)
-                    {
-                        foreach (var title in titleProperty.Title)
-                        {
-                            Console.WriteLine($"Title: {title.PlainText}");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("Title property is not in the expected format.");
-                    }
-                }
-                else
+                Console.WriteLine($"Title: {title?.Title[0].PlainText}");
+
+                var last_modified = page.LastEditedTime;
+
+
+                var page_content = await PageContentToRawText(page);
+
+                var page_size = page_content.Length * sizeof(char);
+
+                var page_contentBytes = Encoding.UTF8.GetBytes(page_content);
+                _hasher.Append(page_contentBytes);
+                var page_hash = _hasher.GetHashAndReset();
+
+                _logger.LogInformation($"Adding file {title?.Title[0].PlainText}");
+
+                await _context.AddAsync(new Models.File {
+                    Name = title!.Title[0].PlainText,
+                    Size = page_size,
+                    FileHash = Convert.ToBase64String(page_hash),
+                    LastModified = last_modified,
+                    MisnamedScore = 'U',
+                    PerishedScore = 'U',
+                    DuplicatedScore = 'U',
+                    GlobalScore = 'U',
+                });
+            }
+            await _context.SaveChangesAsync();
+            _context.ChangeTracker.Clear();
+        }
+        private async Task<string> PageContentToRawText(Page page) {
+            var page_blocks = await _notionClient.Blocks.RetrieveChildrenAsync(page.Id);
+            var raw_text = "";
+
+            foreach (var block in page_blocks.Results)
+            {
+                if (block.Type == BlockType.Paragraph)
                 {
-                    Console.WriteLine("Title property not found.");
+                    var paragraph_block = block as ParagraphBlock;
+                    raw_text += paragraph_block?.Paragraph.RichText.Aggregate("", (acc, text) => acc + text.PlainText);
+                    raw_text = paragraph_block?.Paragraph.RichText.Aggregate(raw_text, (acc, text) => acc + text.PlainText);
+                }
+                if (block.Type == BlockType.Heading_1) {
+                    var heading_block = block as HeadingOneBlock;
+                    raw_text += heading_block?.Heading_1.RichText.Aggregate("", (acc, text) => acc + text.PlainText);
+                }
+                if (block.Type == BlockType.Heading_2) {
+                    var heading_block = block as HeadingTwoBlock;
+                    raw_text += heading_block?.Heading_2.RichText.Aggregate("", (acc, text) => acc + text.PlainText);
+                }
+                if (block.Type == BlockType.Heading_3) {
+                    var heading_block = block as HeadingThreeBlock;
+                    raw_text += heading_block?.Heading_3.RichText.Aggregate("", (acc, text) => acc + text.PlainText);
+                }
+                if (block.Type == BlockType.BulletedListItem) {
+                    var bulleted_list_block = block as BulletedListItemBlock;
+                    raw_text += bulleted_list_block?.BulletedListItem.RichText.Aggregate("", (acc, text) => acc + text.PlainText);
+                }
+                if (block.Type == BlockType.ToDo) {
+                    var numbered_list_block = block as ToDoBlock;
+                    raw_text += numbered_list_block?.ToDo.RichText.Aggregate("", (acc, text) => acc + text.PlainText);
                 }
             }
+            // Console.WriteLine($"Paragraphs: {i}");
+            return raw_text;
         }
     }
+
 }
