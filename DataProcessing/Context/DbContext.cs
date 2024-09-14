@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Configuration;
 using DataProcessing.Models.Input;
 using File = DataProcessing.Models.Input.File;
