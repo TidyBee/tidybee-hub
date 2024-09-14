@@ -29,7 +29,6 @@ namespace TidyEvents.Services
         {
             _logger.LogInformation($"Retrieving files from Notion");
 
-
             var queryResult = await _notionClient.Databases.QueryAsync(notionDatabaseId, new DatabasesQueryParameters
             {
                 Filter = null,
@@ -51,7 +50,7 @@ namespace TidyEvents.Services
                 var page_hash = _hasher.GetHashAndReset();
 
                 _logger.LogInformation($"Adding file {title?.Title[0].PlainText}");
-
+  
                 await _context.AddAsync(new Models.File
                 {
                     Name = title!.Title[0].PlainText,
@@ -90,7 +89,6 @@ namespace TidyEvents.Services
                 }
             }
         }
-
         private async Task<string> PageContentToRawText(Page page) {
             var page_blocks = await _notionClient.Blocks.RetrieveChildrenAsync(page.Id);
             var raw_text = "";

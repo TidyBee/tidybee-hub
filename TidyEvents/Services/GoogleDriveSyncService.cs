@@ -12,6 +12,7 @@ namespace TidyEvents.Services
     public class GoogleDriveSyncService
     {
         private readonly ILogger<GoogleDriveSyncService> _logger;
+
         private readonly XxHash64 _hasher = new();
         private readonly DatabaseContext _context;
         private readonly IConfiguration _configuration;
@@ -35,6 +36,7 @@ namespace TidyEvents.Services
 
             var request = service.Files.List();
             request.Fields = "nextPageToken, files(*)";
+          
             var result = await request.ExecuteAsync();
 
             foreach (var file in result.Files)

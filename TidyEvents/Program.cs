@@ -41,3 +41,5 @@ await notionService.SyncFilesFromNotionAsync("8b8517a37ee640ddb3fb38275a8d70c2")
 
 var googleDriveService = scope.ServiceProvider.GetRequiredService<GoogleDriveSyncService>();
 await googleDriveService.SyncFilesFromGoogleDriveAsync();
+
+await app.RunAsync();
