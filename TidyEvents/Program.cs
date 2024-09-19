@@ -22,6 +22,7 @@ builder.Services.AddHttpClient<AuthInterceptor>();
 builder.Services.AddNotionClient(options => {
     options.AuthToken = builder.Configuration.GetSection("Notion:AuthToken").Value;
 });
+
 builder.Services.AddScoped<NotionFileSyncService>();
 builder.Services.AddScoped<GoogleDriveSyncService>();
 
@@ -38,7 +39,7 @@ app.MapGet("/", () => "Communication with gRPC endpoints must be made through a 
 var notionService = scope.ServiceProvider.GetRequiredService<NotionFileSyncService>();
 await notionService.SyncFilesFromNotionAsync("8b8517a37ee640ddb3fb38275a8d70c2");
 
-// var googleDriveService = scope.ServiceProvider.GetRequiredService<GoogleDriveSyncService>();
-// await googleDriveService.SyncFilesFromGoogleDriveAsync();
+var googleDriveService = scope.ServiceProvider.GetRequiredService<GoogleDriveSyncService>();
+await googleDriveService.SyncFilesFromGoogleDriveAsync();
 
 await app.RunAsync();
