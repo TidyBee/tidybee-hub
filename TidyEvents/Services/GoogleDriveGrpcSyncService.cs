@@ -2,11 +2,11 @@ using Grpc.Core;
 using TidyEventsGDrive.Grpc; // Ensure this matches the namespace from the generated code
 using TidyEvents.Services; // Assuming you have the GoogleDriveSyncService here
 
-public class GoogleDriveSyncService : GoogleDriveSync.GoogleDriveSyncBase
+public class GoogleDriveGrpcSyncService : GoogleDriveGrpcSync.GoogleDriveGrpcSyncBase
 {
     private readonly GoogleDriveSyncService _googleDriveSyncService;
 
-    public GoogleDriveSyncService(GoogleDriveSyncService googleDriveSyncService)
+    public GoogleDriveGrpcSyncService(GoogleDriveSyncService googleDriveSyncService)
     {
         _googleDriveSyncService = googleDriveSyncService;
     }

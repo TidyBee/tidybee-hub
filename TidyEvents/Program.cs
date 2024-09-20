@@ -34,7 +34,7 @@ var services = scope.ServiceProvider.GetRequiredService<DatabaseContext>().Datab
 // Configure the HTTP request pipeline.
 app.MapGrpcService<TidyBeeEventsService>();
 app.MapGrpcService<NotionSyncService>();
-app.MapGrpcService<GoogleDriveSyncService>();
+app.MapGrpcService<GoogleDriveGrpcSyncService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 await app.RunAsync();
