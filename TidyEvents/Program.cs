@@ -12,29 +12,33 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 // Add services to the container.
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DatabaseConnection")));
+
 builder.Services.AddGrpc().AddServiceOptions<TidyBeeEventsService>(options =>
 {
     options.Interceptors.Add<AuthInterceptor>();
 });
-builder.Services.Configure<AuthInterceptorOption>(builder.Configuration.GetSection("AuthInterceptor"));
-builder.Services.AddHttpClient<AuthInterceptor>();
-builder.Services.AddControllers();
 
 builder.Services.AddNotionClient(options => {
     options.AuthToken = builder.Configuration.GetSection("Notion:AuthToken").Value;
 });
-
 builder.Services.AddScoped<NotionFileSyncService>();
 builder.Services.AddScoped<GoogleDriveSyncService>();
+builder.Services.Configure<AuthInterceptorOption>(builder.Configuration.GetSection("AuthInterceptor"));
+builder.Services.AddHttpClient<AuthInterceptor>();
 
+builder.Services.AddControllers();
 
 var app = builder.Build();
-var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider.GetRequiredService<DatabaseContext>().Database.EnsureCreated();
 
-// Configure the HTTP request pipeline.
-app.MapGrpcService<TidyBeeEventsService>().RequireHost("*:8080"); // gRPC should run on a different port or path.
-app.MapControllers().RequireHost("*:80"); // HTTP controller routes should run on HTTP/1.1 on port 80.
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider.GetRequiredService<DatabaseContext>().Database.EnsureCreated();
+}
+
+app.MapGrpcService<TidyBeeEventsService>();
+
+app.MapControllers();
+
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 await app.RunAsync();
