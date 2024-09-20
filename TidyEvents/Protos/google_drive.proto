@@ -2,7 +2,7 @@ syntax = "proto3";
 
 option csharp_namespace = "TidyEventsGDrive.Grpc";
 
-service GoogleDriveSync {
+service GoogleDriveGrpcSync {
     // Define the RPC for syncing Google Drive files
     rpc SyncFiles(SyncFilesRequest) returns (SyncFilesResponse);
 }
