@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "TidyEvents.Grpc";
+option csharp_namespace = "TidyEventsNotion.Grpc";
 
 service NotionSync {
     // Define the RPC for syncing a Notion database
