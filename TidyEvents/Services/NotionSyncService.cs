@@ -1,6 +1,6 @@
 using Grpc.Core;
 using TidyEventsNotion.Grpc;
-using TidyEvents.Services; // Assuming you already have the NotionFileSyncService
+using TidyEvents.Services;
 
 public class NotionSyncService : NotionSync.NotionSyncBase
 {

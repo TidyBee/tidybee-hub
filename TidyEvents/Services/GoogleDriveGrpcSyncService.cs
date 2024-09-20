@@ -1,6 +1,6 @@
 using Grpc.Core;
-using TidyEventsGDrive.Grpc; // Ensure this matches the namespace from the generated code
-using TidyEvents.Services; // Assuming you have the GoogleDriveSyncService here
+using TidyEventsGDrive.Grpc;
+using TidyEvents.Services;
 
 public class GoogleDriveGrpcSyncService : GoogleDriveGrpcSync.GoogleDriveGrpcSyncBase
 {
@@ -15,7 +15,6 @@ public class GoogleDriveGrpcSyncService : GoogleDriveGrpcSync.GoogleDriveGrpcSyn
     {
         try
         {
-            // Call your existing service logic to sync files from Google Drive
             //await _googleDriveSyncService.SyncFilesFromGoogleDriveAsync(request.Oauth2Token); TODO use when Gdrive remove from the serviceAccount
             await _googleDriveSyncService.SyncFilesFromGoogleDriveAsync();
 
