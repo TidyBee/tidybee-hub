@@ -33,8 +33,8 @@ var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider.GetRequiredService<DatabaseContext>().Database.EnsureCreated();
 
 // Configure the HTTP request pipeline.
-app.MapGrpcService<TidyBeeEventsService>();
-app.MapControllers();
+app.MapGrpcService<TidyBeeEventsService>().RequireHost("*:5057"); // gRPC should run on a different port or path.
+app.MapControllers().RequireHost("*:80"); // HTTP controller routes should run on HTTP/1.1 on port 80.
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 await app.RunAsync();
