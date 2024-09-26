@@ -33,13 +33,8 @@ var services = scope.ServiceProvider.GetRequiredService<DatabaseContext>().Datab
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<TidyBeeEventsService>();
+app.MapGrpcService<NotionSyncService>();
+app.MapGrpcService<GoogleDriveGrpcSyncService>();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
-
-// Execute the Notion synchronization service
-var notionService = scope.ServiceProvider.GetRequiredService<NotionFileSyncService>();
-await notionService.SyncFilesFromNotionAsync("8b8517a37ee640ddb3fb38275a8d70c2");
-
-var googleDriveService = scope.ServiceProvider.GetRequiredService<GoogleDriveSyncService>();
-await googleDriveService.SyncFilesFromGoogleDriveAsync();
 
 await app.RunAsync();

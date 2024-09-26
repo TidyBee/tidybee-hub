@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <Protobuf Include="Protos\tidybee_events.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos\notion.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos\google_drive.proto" GrpcServices="Server" />
   </ItemGroup>
 
   <ItemGroup>
