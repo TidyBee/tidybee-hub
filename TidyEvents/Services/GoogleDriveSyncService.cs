@@ -50,6 +50,7 @@ namespace TidyEvents.Services
             request.Fields = $"nextPageToken,files(*)";
 
             var result = await request.ExecuteAsync();
+            List<string> files_present_in_drive = new();
 
             foreach (var file in result.Files)
             {
@@ -86,8 +87,14 @@ namespace TidyEvents.Services
                         GlobalScore = 'U',
                     });
                 }
-
+                    files_present_in_drive.Add(file.Name);
             }
+            _logger.LogInformation($"Looking for deleted files");
+            var files_to_delete = await _context.Files.Where(f => !files_present_in_drive.Contains(f.Name)).ToListAsync();
+            _logger.LogInformation($"Found {files_to_delete.Count} files to delete");
+            _context.RemoveRange(files_to_delete);
+
+            _logger.LogInformation($"Saving changes to database");
             await _context.SaveChangesAsync();
             _context.ChangeTracker.Clear();
 
