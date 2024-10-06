@@ -24,31 +24,19 @@ namespace TidyEvents.Services
             _configuration = configuration;
         }
 
-        public async Task SyncFilesFromGoogleDriveAsync(string accessToken)
+        public async Task SyncFilesFromGoogleDriveAsync()
         {
             var service = new DriveService(new BaseClientService.Initializer
             {
-                HttpClientInitializer = GetCredentialAsync(accessToken),
+                HttpClientInitializer = await GetCredentialAsync(),
                 ApplicationName = "YourAppName"
             });
 
-            _logger.LogInformation($"Retrieving user drives from Google Drive");
-
-            var drive_request = service.Drives.List();
-            drive_request.Fields = "drives(id,name)";
-
-            var drives = await drive_request.ExecuteAsync();
-
-            _logger.LogInformation($"Found {drives.Drives.Count} drives");
-            _logger.LogInformation($"Retrieving files from {drives.Drives[0].Name} (drive id: {drives.Drives[0].Id})");
+            _logger.LogInformation($"Retrieving files from Google Drive");
 
             var request = service.Files.List();
-            request.Corpora = "drive";
-            request.DriveId = drives.Drives[0].Id;
-            request.SupportsAllDrives = true;
-            request.IncludeItemsFromAllDrives = true;
-            request.Fields = $"nextPageToken,files(*)";
-
+            request.Fields = "nextPageToken, files(*)";
+          
             var result = await request.ExecuteAsync();
 
             foreach (var file in result.Files)
@@ -114,20 +102,17 @@ namespace TidyEvents.Services
             return Convert.ToBase64String(fileHash);
         }
 
-        private GoogleCredential GetCredentialAsync(string accessToken)
+        private async Task<GoogleCredential> GetCredentialAsync()
         {
-            // Commenting this part because we might need to keep it to use a service account in the future
-            //
-            // var service_account_keys_path = _configuration.GetSection("GoogleDrive:ServiceAccountKeysPath").Value;
-            // using var stream = new FileStream(service_account_keys_path!, FileMode.Open, FileAccess.Read);
-            // var scopes = new[] {
-            //     DriveService.Scope.Drive,
-            //     DriveService.Scope.DriveReadonly,
-            //     DriveService.Scope.DriveMetadataReadonly,
-            // };
-            // var credential = GoogleCredential.FromStream(stream)
-            //     .CreateScoped(scopes);
-            var credential = GoogleCredential.FromAccessToken(accessToken);
+            var service_account_keys_path = _configuration.GetSection("GoogleDrive:ServiceAccountKeysPath").Value;
+            using var stream = new FileStream(service_account_keys_path!, FileMode.Open, FileAccess.Read);
+            var scopes = new[] {
+                DriveService.Scope.Drive,
+                DriveService.Scope.DriveReadonly,
+                DriveService.Scope.DriveMetadataReadonly,
+            };
+            var credential = GoogleCredential.FromStream(stream)
+                .CreateScoped(scopes);
 
             return credential;
         }
