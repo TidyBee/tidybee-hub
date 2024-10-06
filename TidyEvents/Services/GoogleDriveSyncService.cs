@@ -60,22 +60,33 @@ namespace TidyEvents.Services
                 {
                     continue;
                 }
-
                 fileHash = file.Sha256Checksum ?? file.Sha1Checksum ?? file.Md5Checksum ?? await GetFileHashAsync(service, file.Id);
 
-                _logger.LogInformation($"New file: {file.Name}");
+                var existingFile = await _context.Files.FirstOrDefaultAsync(f => f.Name == file.Name);
 
-                _context.Add(new Models.File
+                if (existingFile != null)
                 {
-                    Name = file.Name,
-                    Size = (int)file.Size!,
-                    FileHash = fileHash,
-                    LastModified = DateTime.Parse(file.ModifiedTimeRaw),
-                    MisnamedScore = 'U',
-                    PerishedScore = 'U',
-                    DuplicatedScore = 'U',
-                    GlobalScore = 'U',
-                });
+                    _logger.LogInformation($"Updating file: {file.Name}");
+
+                    existingFile.Size = (int)file.Size!;
+                    existingFile.FileHash = fileHash;
+                    existingFile.LastModified = DateTime.Parse(file.ModifiedTimeRaw);
+                } else {
+                    _logger.LogInformation($"New file: {file.Name}");
+
+                    _context.Add(new Models.File
+                    {
+                        Name = file.Name,
+                        Size = (int)file.Size!,
+                        FileHash = fileHash,
+                        LastModified = DateTime.Parse(file.ModifiedTimeRaw),
+                        MisnamedScore = 'U',
+                        PerishedScore = 'U',
+                        DuplicatedScore = 'U',
+                        GlobalScore = 'U',
+                    });
+                }
+
             }
             await _context.SaveChangesAsync();
             _context.ChangeTracker.Clear();
