@@ -24,4 +24,11 @@ public class InputService
         return rules;
     }
 
+    public async Task<DataProcessing.Models.Input.File> getFileByName(string fileName)
+    {
+        DataProcessing.Models.Input.File fileData = await _context.Files
+            .FirstOrDefaultAsync(file => file.Name == fileName);
+
+        return fileData;
+    }
 }

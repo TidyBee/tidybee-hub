@@ -81,4 +81,9 @@ public class WidgetHub : Hub
         var data = _outputService.getTidyRules(await _inputService.getRules());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
+
+    public async Task SendFileByName(string name) 
+    {
+        await Clients.Caller.SendAsync("ReceiveMessage", _inputService.getFileByName(name));
+    }
 }
