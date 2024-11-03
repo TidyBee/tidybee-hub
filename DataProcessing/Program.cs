@@ -29,7 +29,7 @@ builder.Services.AddCors(options =>
         builder => builder
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .WithOrigins(frontendUrl ?? "http://localhost:8080")
+            .WithOrigins(frontendUrl ?? "http://localhost:8080", "http://localhost:8080")
             .AllowCredentials());
 });
 
