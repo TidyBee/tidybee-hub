@@ -39,29 +39,40 @@ namespace TidyEvents.Services
                 var title_property = page.Properties.Where(p => p.Value.Type == PropertyValueType.Title).FirstOrDefault();
                 var title = title_property.Value as TitlePropertyValue;
 
-                var last_modified = page.LastEditedTime;
-
+                var existingFile = await _context.Files.Where(f => f.Name == title!.Title[0].PlainText).FirstOrDefaultAsync();
                 var page_content = await PageContentToRawText(page);
-
-                var page_size = page_content.Length * sizeof(char);
 
                 var page_contentBytes = Encoding.UTF8.GetBytes(page_content);
                 _hasher.Append(page_contentBytes);
                 var page_hash = _hasher.GetHashAndReset();
+                var last_modified = page.LastEditedTime;
 
-                _logger.LogInformation($"Adding file {title?.Title[0].PlainText}");
-  
-                await _context.AddAsync(new Models.File
+
+                var page_size = page_content.Length * sizeof(char);
+
+                if (existingFile != null)
                 {
-                    Name = title!.Title[0].PlainText,
-                    Size = page_size,
-                    FileHash = Convert.ToBase64String(page_hash),
-                    LastModified = last_modified,
-                    MisnamedScore = 'U',
-                    PerishedScore = 'U',
-                    DuplicatedScore = 'U',
-                    GlobalScore = 'U',
-                });
+                    _logger.LogInformation($"Updating file {title?.Title[0].PlainText}");
+                    existingFile.LastModified = last_modified;
+                    existingFile.Size = page_content.Length * sizeof(char);
+                    existingFile.FileHash = Convert.ToBase64String(page_hash);
+
+                    _context.Files.Update(existingFile);
+                } else {
+                    _logger.LogInformation($"Adding file {title?.Title[0].PlainText}");
+
+                    await _context.AddAsync(new Models.File
+                    {
+                        Name = title!.Title[0].PlainText,
+                        Size = page_size,
+                        FileHash = Convert.ToBase64String(page_hash),
+                        LastModified = last_modified,
+                        MisnamedScore = 'U',
+                        PerishedScore = 'U',
+                        DuplicatedScore = 'U',
+                        GlobalScore = 'U',
+                    });
+                }
             }
             await _context.SaveChangesAsync();
             _context.ChangeTracker.Clear();

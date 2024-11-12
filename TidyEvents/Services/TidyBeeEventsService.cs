@@ -27,6 +27,11 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
 
             if (update_request.EventType == FileEventType.Created)
             {
+                if (await _context.Files.Where(f => f.Name == update_request.Path[0]).FirstOrDefaultAsync() != null)
+                {
+                    _logger.LogWarning($"File {update_request.Path} already exists in database");
+                    continue;
+                }
                 await _context.Files.AddAsync(new Models.File
                 {
                     Name = update_request.Path[0],

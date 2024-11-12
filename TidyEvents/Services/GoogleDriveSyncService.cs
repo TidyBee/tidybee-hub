@@ -72,6 +72,7 @@ namespace TidyEvents.Services
                     existingFile.Size = (int)file.Size!;
                     existingFile.FileHash = fileHash;
                     existingFile.LastModified = DateTime.Parse(file.ModifiedTimeRaw);
+                    _context.Files.Update(existingFile);
                 } else {
                     _logger.LogInformation($"New file: {file.Name}");
 
