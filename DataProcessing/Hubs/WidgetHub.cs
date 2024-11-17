@@ -82,7 +82,7 @@ public class WidgetHub : Hub
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
 
-    public async Task SendFileById(string id)
+    public async Task SendFileById(int id)
     {
         var file = await _inputService.GetFileById(id);
 
