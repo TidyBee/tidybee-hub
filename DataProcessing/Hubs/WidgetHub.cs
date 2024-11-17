@@ -81,4 +81,18 @@ public class WidgetHub : Hub
         var data = _outputService.getTidyRules(await _inputService.getRules());
         await Clients.Caller.SendAsync("ReceiveMessage", data);
     }
+
+    public async Task SendFileById(string id)
+    {
+        var file = await _inputService.GetFileById(id);
+
+        if (file != null)
+        {
+            await Clients.Caller.SendAsync("ReceiveFileById", file);
+        }
+        else
+        {
+            await Clients.Caller.SendAsync("ReceiveError", $"File with ID {id} not found.");
+        }
+    }
 }
