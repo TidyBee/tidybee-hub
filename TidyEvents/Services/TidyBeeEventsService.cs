@@ -20,7 +20,6 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
 
     public override async Task<FileInfoEventResponse> FileEvent(IAsyncStreamReader<FileEventRequest> request, ServerCallContext context)
     {
-        // TODO: Buffer events and process them in batches
         await foreach (var update_request in request.ReadAllAsync())
         {
             _logger.LogInformation($"Recieved a request type {update_request.EventType} to update file: {update_request.Path}");
@@ -73,19 +72,40 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
 
             await _context.SaveChangesAsync();
             _context.ChangeTracker.Clear();
+            var stored_procedures_raw = new List<string>
+            {
+                "CALL calculate_every_perished_scores();",
+                "CALL calculate_every_misnamed_scores();",
+                "CALL calculate_every_duplicated_scores();",
+                "CALL calculate_every_global_scores();"
+            };
+            var stored_procedure_fs = stored_procedures_raw.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
+
+            foreach (var sp in stored_procedure_fs)
+            {
+                try
+                {
+                    await _context.Database.ExecuteSqlAsync(sp);
+                }
+                catch (NpgsqlException e)
+                {
+                    _logger.LogError(e, $"Error executing stored procedure {sp}");
+                }
+            }
         }
 
-
-        var stored_procedures_raw = new List<string>
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+        var stored_procedures_raw1 = new List<string>
         {
             "CALL calculate_every_perished_scores();",
             "CALL calculate_every_misnamed_scores();",
             "CALL calculate_every_duplicated_scores();",
             "CALL calculate_every_global_scores();"
         };
-        var stored_procedure_fs = stored_procedures_raw.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
+        var stored_procedure_fs1 = stored_procedures_raw1.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
 
-        foreach (var sp in stored_procedure_fs)
+        foreach (var sp in stored_procedure_fs1)
         {
             try
             {
@@ -96,7 +116,6 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
                 _logger.LogError(e, $"Error executing stored procedure {sp}");
             }
         }
-
         return await Task.FromResult(new FileInfoEventResponse
         {
             Status = Status.Ok,
