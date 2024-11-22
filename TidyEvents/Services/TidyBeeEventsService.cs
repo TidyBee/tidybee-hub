@@ -20,8 +20,6 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
 
     public override async Task<FileInfoEventResponse> FileEvent(IAsyncStreamReader<FileEventRequest> request, ServerCallContext context)
     {
-        // TODO: Buffer events and process them in batches
-        _logger.LogInformation($"New event starting....");
         await foreach (var update_request in request.ReadAllAsync())
         {
             _logger.LogInformation($"Recieved a request type {update_request.EventType} to update file: {update_request.Path}");
@@ -74,28 +72,25 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
 
             await _context.SaveChangesAsync();
             _context.ChangeTracker.Clear();
-        }
-
-        _logger.LogInformation($"Next step event....");
-
-        var stored_procedures_raw = new List<string>
-        {
-            "CALL calculate_every_perished_scores();",
-            "CALL calculate_every_misnamed_scores();",
-            "CALL calculate_every_duplicated_scores();",
-            "CALL calculate_every_global_scores();"
-        };
-        var stored_procedure_fs = stored_procedures_raw.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
-
-        foreach (var sp in stored_procedure_fs)
-        {
-            try
+            var stored_procedures_raw = new List<string>
             {
-                await _context.Database.ExecuteSqlAsync(sp);
-            }
-            catch (NpgsqlException e)
+                "CALL calculate_every_perished_scores();",
+                "CALL calculate_every_misnamed_scores();",
+                "CALL calculate_every_duplicated_scores();",
+                "CALL calculate_every_global_scores();"
+            };
+            var stored_procedure_fs = stored_procedures_raw.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
+
+            foreach (var sp in stored_procedure_fs)
             {
-                _logger.LogError(e, $"Error executing stored procedure {sp}");
+                try
+                {
+                    await _context.Database.ExecuteSqlAsync(sp);
+                }
+                catch (NpgsqlException e)
+                {
+                    _logger.LogError(e, $"Error executing stored procedure {sp}");
+                }
             }
         }
 
