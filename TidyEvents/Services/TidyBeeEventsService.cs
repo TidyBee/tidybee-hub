@@ -96,15 +96,6 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
 
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
-        var stored_procedures_raw = new List<string>
-        {
-            "CALL calculate_every_perished_scores();",
-            "CALL calculate_every_misnamed_scores();",
-            "CALL calculate_every_duplicated_scores();",
-            "CALL calculate_every_global_scores();"
-        };
-        var stored_procedure_fs = stored_procedures_raw.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
-
         foreach (var sp in stored_procedure_fs)
         {
             try
