@@ -21,6 +21,7 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
     public override async Task<FileInfoEventResponse> FileEvent(IAsyncStreamReader<FileEventRequest> request, ServerCallContext context)
     {
         // TODO: Buffer events and process them in batches
+        _logger.LogInformation($"New event starting....");
         await foreach (var update_request in request.ReadAllAsync())
         {
             _logger.LogInformation($"Recieved a request type {update_request.EventType} to update file: {update_request.Path}");
@@ -75,6 +76,7 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
             _context.ChangeTracker.Clear();
         }
 
+        _logger.LogInformation($"Next step event....");
 
         var stored_procedures_raw = new List<string>
         {
