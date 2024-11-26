@@ -46,12 +46,28 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
                     DuplicateAssociativeTableOriginalFiles = [],
                 });
             }
+            if (update_request.EventType == FileEventType.Updated)
+            {
+                var file = await _context.Files.Where(f => f.Name == update_request.Path[0]).FirstOrDefaultAsync();
+                if (file != null)
+                {
+                    file.FileHash = update_request.Hash;
+                    file.Size = (int)update_request.Size;
+                    file.LastModified = DateTime.Parse(update_request.LastModified.ToString().TrimStart('\"').TrimEnd('\"'));
+                    _context.Files.Update(file);
+                }
+                else
+                {
+                    _logger.LogWarning($"File {update_request.Path} not found in database");
+                }
+            }
             if (update_request.EventType == FileEventType.Deleted)
             {
                 var file = await _context.Files.Where(f => f.Name == update_request.Path[0]).FirstOrDefaultAsync();
                 if (file != null)
                 {
                     _context.Files.Remove(file);
+                    _context.DuplicateAssociativeTables.RemoveRange(file.DuplicateAssociativeTableDuplicateFiles);
                 }
                 else
                 {
