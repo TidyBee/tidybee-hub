@@ -80,6 +80,7 @@ public partial class DatabaseContext : DbContext
                 .HasMaxLength(1)
                 .HasColumnName("misnamed_score");
             entity.Property(e => e.Name).HasColumnName("name");
+            entity.Property(e => e.Provenance).HasColumnName("provenance");
             entity.Property(e => e.PerishedScore)
                 .HasMaxLength(1)
                 .HasColumnName("perished_score");
