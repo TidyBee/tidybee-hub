@@ -23,7 +23,7 @@ public partial class File
 
     public char GlobalScore { get; set; }
 
-    public string Provenance {get; set;}
+    public string Provenance {get; set;} = null!;
 
     public virtual ICollection<DuplicateAssociativeTable> DuplicateAssociativeTableDuplicateFiles { get; set; } = new List<DuplicateAssociativeTable>();
 

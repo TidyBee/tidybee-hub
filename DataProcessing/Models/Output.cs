@@ -8,7 +8,7 @@ namespace DataProcessing.Models
         public int size { get; set; }
         public LastModified? last_modified { get; set; }
         public TidyScore? tidy_score { get; set; }
-        public string provenance {get; set;}
+        public string? provenance {get; set;}
     }
 
     public class LastModified
