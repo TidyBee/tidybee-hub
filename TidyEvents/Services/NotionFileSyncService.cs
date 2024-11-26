@@ -71,6 +71,7 @@ namespace TidyEvents.Services
                         PerishedScore = 'U',
                         DuplicatedScore = 'U',
                         GlobalScore = 'U',
+                        Provenance = 'notion'
                     });
                 }
             }

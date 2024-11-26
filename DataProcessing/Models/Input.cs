@@ -62,6 +62,8 @@ namespace DataProcessing.Models.Input
 
         public char GlobalScore { get; set; }
 
+        public string Provenance {get; set;}
+
         public virtual ICollection<DuplicateAssociativeTable> DuplicateAssociativeTableDuplicateFiles { get; set; } = new List<DuplicateAssociativeTable>();
 
         public virtual ICollection<DuplicateAssociativeTable> DuplicateAssociativeTableOriginalFiles { get; set; } = new List<DuplicateAssociativeTable>();

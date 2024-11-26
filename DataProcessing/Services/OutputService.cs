@@ -190,6 +190,7 @@ public class OutputService
             {
                 pretty_path = file.Name,
                 size = file.Size,
+                provenance = file.Provenance,
                 last_modified = new LastModified
                 {
                     secs_since_epoch = secsSinceEpoch,
@@ -297,6 +298,7 @@ public class OutputService
                 {
                     pretty_path = file.Name,
                     size = file.Size,
+                    provenance = file.Provenance,
                     last_modified = new LastModified
                     {
                         secs_since_epoch = ((DateTimeOffset)file.LastModified).ToUnixTimeSeconds(),
@@ -397,6 +399,7 @@ public class OutputService
                 var overview = new Overview
                 {
                     pretty_path = file.Name,
+                    provenance = file.Provenance,
                     size = file.Size,
                     last_modified = new LastModified
                     {
@@ -497,6 +500,7 @@ public class OutputService
                 var overview = new Overview
                 {
                     pretty_path = file.Name,
+                    provenance = file.Provenance,
                     size = file.Size,
                     last_modified = new LastModified
                     {
