@@ -41,7 +41,7 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
                     PerishedScore = 'U',
                     DuplicatedScore = 'U',
                     GlobalScore = 'U',
-                    Provenance = "agent".
+                    Provenance = "agent",
                     DuplicateAssociativeTableDuplicateFiles = [],
                     DuplicateAssociativeTableOriginalFiles = [],
                 });
