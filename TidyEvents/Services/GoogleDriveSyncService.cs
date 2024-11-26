@@ -86,6 +86,7 @@ namespace TidyEvents.Services
                         PerishedScore = 'U',
                         DuplicatedScore = 'U',
                         GlobalScore = 'U',
+                        Provenance = "googleDrive"
                     });
                 }
                     files_present_in_drive.Add(file.Name);
