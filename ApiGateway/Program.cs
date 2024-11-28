@@ -19,7 +19,9 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
             "http://localhost:8080",
             "http://prod.tidybee.fr:8080",
-            "http://51.103.93.207:8080"
+            "http://51.103.93.207",
+            "http://prod.tidybee.fr",
+            "https://prod.tidybee.fr"
         );
     });
 });
