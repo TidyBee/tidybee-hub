@@ -44,10 +44,11 @@ message FolderEventRequest {
     // Type of the event
     FileEventType event_type = 1;
     // Path relative to the watched directory
-    string pretty_path = 2;
+    string old_path = 2;
     // Full canonical path
-    repeated string path = 3;
+    optional string new_path = 3;
 }
+
 
 // Data sent by the agent when connecting to the hub
 message AgentData {
