@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "TidyEventsNotion.Grpc";
+
+service NotionSync {
+    // Define the RPC for syncing a Notion database
+    rpc SyncDatabase(SyncDatabaseRequest) returns (SyncDatabaseResponse);
+}
+
+// Define the request message for syncing Notion
+message SyncDatabaseRequest {
+    string databaseId = 1;
+}
+
+// Define the response message for syncing Notion
+message SyncDatabaseResponse {
+    bool success = 1;
+    string message = 2;
+}
