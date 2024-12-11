@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "TidyEventsGDrive.Grpc";
+
+service GoogleDriveGrpcSync {
+    // Define the RPC for syncing Google Drive files
+    rpc SyncFiles(SyncFilesRequest) returns (SyncFilesResponse);
+}
+
+// Define the request message for syncing Google Drive files
+message SyncFilesRequest {
+    string oauth2Token = 1; // The OAuth2 token for authentication
+}
+
+// Define the response message for syncing Google Drive files
+message SyncFilesResponse {
+    bool success = 1;
+    string message = 2;
+}
