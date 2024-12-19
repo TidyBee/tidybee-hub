@@ -89,40 +89,76 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
 
             await _context.SaveChangesAsync();
             _context.ChangeTracker.Clear();
-            var stored_procedures_raw = new List<string>
-            {
-                "CALL calculate_every_perished_scores();",
-                "CALL calculate_every_misnamed_scores();",
-                "CALL calculate_every_duplicated_scores();",
-                "CALL calculate_every_global_scores();"
-            };
-            var stored_procedure_fs = stored_procedures_raw.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
+            await UpdateScore();
+        }
 
-            foreach (var sp in stored_procedure_fs)
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+        await UpdateScore();
+
+        return await Task.FromResult(new FileInfoEventResponse
+        {
+            Status = Status.Ok,
+        });
+    }
+
+    public override async Task<FileInfoEventResponse> FolderEvent(IAsyncStreamReader<FolderEventRequest> request, ServerCallContext context) {
+        await foreach (var update_request in request.ReadAllAsync())
+        {
+            _logger.LogInformation($"Recieved a request type {update_request.EventType} to update folder: {update_request.OldPath}");
+
+            // Here all the files that are in the folder are deleted
+            if (update_request.EventType == FileEventType.Deleted)
             {
-                try
+                var files = await _context.Files.Where(f => f.Name.StartsWith(update_request.OldPath)).ToListAsync();
+                if (files != null)
                 {
-                    await _context.Database.ExecuteSqlAsync(sp);
+                    _context.Files.RemoveRange(files);
+                    foreach (var file in files)
+                    {
+                        _context.DuplicateAssociativeTables.RemoveRange(file.DuplicateAssociativeTableDuplicateFiles);
+                    }
                 }
-                catch (NpgsqlException e)
+            }
+            // Here all the files that are in the folder are moved to the new folder and thus need to have their paths updated
+            if (update_request.EventType == FileEventType.Moved)
+            {
+                var files = await _context.Files.Where(f => f.Name.StartsWith(update_request.OldPath)).ToListAsync();
+                if (files != null)
                 {
-                    _logger.LogError(e, $"Error executing stored procedure {sp}");
+                    foreach (var file in files)
+                    {
+                        file.Name = file.Name.Replace(update_request.OldPath, update_request.NewPath);
+                    }
                 }
             }
         }
 
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
-        var stored_procedures_raw1 = new List<string>
+        await UpdateScore();
+
+        return await Task.FromResult(new FileInfoEventResponse
+        {
+            Status = Status.Ok,
+        });
+    }
+
+    /// <summary>
+    /// Update the scores of all the files in the database by calling the stored procedures.
+    /// </summary>
+    /// <returns></returns>
+    private async Task UpdateScore() {
+        var stored_procedures_raw = new List<string>
         {
             "CALL calculate_every_perished_scores();",
             "CALL calculate_every_misnamed_scores();",
             "CALL calculate_every_duplicated_scores();",
             "CALL calculate_every_global_scores();"
         };
-        var stored_procedure_fs1 = stored_procedures_raw1.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
+        var stored_procedure_fs = stored_procedures_raw.Select(sp_raw => FormattableStringFactory.Create(sp_raw));
 
-        foreach (var sp in stored_procedure_fs1)
+        foreach (var sp in stored_procedure_fs)
         {
             try
             {
@@ -133,9 +169,5 @@ public class TidyBeeEventsService : TidyBeeEvents.TidyBeeEventsBase
                 _logger.LogError(e, $"Error executing stored procedure {sp}");
             }
         }
-        return await Task.FromResult(new FileInfoEventResponse
-        {
-            Status = Status.Ok,
-        });
     }
 }
