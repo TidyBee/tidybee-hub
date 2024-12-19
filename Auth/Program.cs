@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using auth.Context;
 using auth.Repository;
 using Microsoft.Extensions.Hosting.WindowsServices;
+using TidyEventsGDrive.Grpc;
+using TidyEventsNotion.Grpc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,14 +20,30 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddScoped<AgentRepository>();
 builder.Services.AddScoped<StatusHandlerService>();
 
+builder.Services.AddGrpcClient<GoogleDriveGrpcSync.GoogleDriveGrpcSyncClient>(options =>
+{
+    var tidyevents_address = builder.Configuration.GetValue<string>("TidyEvents:Address");
+    var tidyevents_port = builder.Configuration.GetValue<string>("TidyEvents:Port");
+
+    options.Address = new Uri($"https://{tidyevents_address}:{tidyevents_port}");
+});
+
+builder.Services.AddGrpcClient<NotionSync.NotionSyncClient>(options =>
+{
+    var tidyevents_address = builder.Configuration.GetValue<string>("TidyEvents:Address");
+    var tidyevents_port = builder.Configuration.GetValue<string>("TidyEvents:Port");
+
+    options.Address = new Uri($"https://{tidyevents_address}:{tidyevents_port}");
+});
+
 
 builder.Services.AddCors(options =>
-{
+{   
     options.AddPolicy("CorsPolicy",
         builder => builder
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .WithOrigins("http://localhost:8080", "https://prod.tidybee.fr:8080")
+            .WithOrigins("http://localhost:8080", "https://prod.tidybee.fr:8080", "https://prod.tidybee.fr")
             .AllowCredentials());
 });
 //var configPath = Path.Combine(AppContext.BaseDirectory, "appsettings.json");
@@ -78,4 +96,4 @@ app.MapControllers();
 
 app.Run();
 
-statusHandler?.Stop();
+statusHandler.Stop();
