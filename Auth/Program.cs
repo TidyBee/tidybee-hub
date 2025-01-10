@@ -25,7 +25,7 @@ builder.Services.AddGrpcClient<GoogleDriveGrpcSync.GoogleDriveGrpcSyncClient>(op
     var tidyevents_address = builder.Configuration.GetValue<string>("TidyEvents:Address");
     var tidyevents_port = builder.Configuration.GetValue<string>("TidyEvents:Port");
 
-    options.Address = new Uri($"https://{tidyevents_address}:{tidyevents_port}");
+    options.Address = new Uri($"http://{tidyevents_address}:{tidyevents_port}");
 });
 
 builder.Services.AddGrpcClient<NotionSync.NotionSyncClient>(options =>
@@ -33,7 +33,7 @@ builder.Services.AddGrpcClient<NotionSync.NotionSyncClient>(options =>
     var tidyevents_address = builder.Configuration.GetValue<string>("TidyEvents:Address");
     var tidyevents_port = builder.Configuration.GetValue<string>("TidyEvents:Port");
 
-    options.Address = new Uri($"https://{tidyevents_address}:{tidyevents_port}");
+    options.Address = new Uri($"http://{tidyevents_address}:{tidyevents_port}");
 });
 
 
